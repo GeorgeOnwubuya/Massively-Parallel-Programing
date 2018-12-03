@@ -1,0 +1,138 @@
+\documentclass{article}
+
+\title{Lab 5}
+\author{George Onwubuya}
+\usepackage{fancyvrb}
+\usepackage{minted}
+\usepackage{graphicx}
+
+\begin{document}
+\maketitle
+
+\section{Reduction Sum}
+\subsection{Output}
+\VerbatimInput{./reduction.sh.o713727}
+
+\subsection{Performance Analysis}
+ \subsubsection{Array Size} 
+ \setlength{\parindent}{1cm}
+ \begin{tabular}{ |p{2.5cm}||p{2cm}|p{2cm}|p{2cm}|p{2cm}|p{2cm}|  }
+ \hline
+ \multicolumn{6}{|c|}{Execution Time (seconds) for Each Process } \\
+ \hline
+Elements(m) & Setting Up & DeviceVar & HostToDevice & Kernel & DeviceToHost\\
+ \hline
+ 1000 & 0.000019 & 0.203124 & 0.000065 & 0.000103 & 0.000052\\
+ \hline
+ 2000 & 0.000057 & 0.176309 & 0.000059 & 0.000123 & 0.000035\\
+ \hline
+ 4000 & 0.000053 & 0.179124 & 0.000068 & 0.000105 & 0.000026\\
+ \hline
+ 8000 & 0.000095 & 0.177338 & 0.000086 & 0.000115 & 0.000026\\
+ \hline
+ 16000 & 0.000184 & 0.140137 & 0.000087 & 0.000099 & 0.000023\\
+ \hline
+ 32000 & 0.000385 & 0.155782 & 0.000166 & 0.000108 & 0.000026\\
+ \hline
+ 64000 & 0.000803 & 0.141736 & 0.000190 & 0.000108 & 0.000026\\
+ \hline
+ 128000 & 0.001595 & 0.139249 & 0.000328 & 0.000107 & 0.000036\\
+ \hline 
+ 1000000 & 0.010696 & 0.158959 & 0.002293 & 0.000158 & 0.000028\\
+ \hline 
+ 2000000 & 0.019773 & 0.187990 & 0.004141 & 0.000205 & 0.000039\\
+ \hline 
+ 4000000 & 0.038021 & 0.181643 & 0.007546 & 0.000308 & 0.000046\\
+ \hline 
+ \end{tabular}
+ 
+\subsubsection{Comments} 
+ The different execution times relate to the number of elements in different ways. The execution times for allocating device variables generally are similar because the same device variables will be allocated regardless of the size of the array. The execution times for setting up the problem and  copying data from host to device are directly proportional to the number of elements. I assumed that the time taken to launch the kernel would follow the same trend but the results do not show this trend. This maybe due to the fact that a noticeable difference can be observed with large element array sizes only. The time it takes to copy data from the device to the host is generally the same because we one value is copied to host. 
+ 
+\subsection{Answers}
+\subsubsection{a}
+A single thread block will synchronize about $\log_2(Block Size)$. 
+\subsubsection{b}
+Every thread should minimally perform one operation and that is the loading of the elements into shared memory. The maximum number of 'real' operations would $1 + \log_2(Block Size)$. The average number of 'real' operations would  be $(1 + \log_2(Block Size))/ Block Size$
+  
+\subsection{Kernel}
+\inputminted[breaklines, linenos]{c}{./reduction-kernel.cu}
+ 
+\section{Prefix Scan}
+\subsection{Output}
+\VerbatimInput{./prefix-scan.sh.o713870}
+
+\subsection{Performance Analysis}
+ \subsubsection{Array Size} 
+ \setlength{\parindent}{1cm}
+ \begin{tabular}{ |p{2.5cm}||p{2cm}|p{2cm}|p{2cm}|p{2cm}|p{2cm}|  }
+ \hline
+ \multicolumn{6}{|c|}{Execution Time (seconds) for Each Process } \\
+ \hline
+Elements(m) & Setting Up & DeviceVar & HostToDevice & Kernel & DeviceToHost\\
+ \hline
+ 1000 & 0.000021 & 0.160909 & 0.000054 & 0.000112 & 0.000029\\
+ \hline
+ 2000 & 0.000032 & 0.182564 & 0.000061 & 0.000342 & 0.000037\\
+ \hline
+ 4000 & 0.000062 & 0.179288 & 0.000069 & 0.000363 & 0.000040\\
+ \hline
+ 8000 & 0.000132 & 0.139090 & 0.000067 & 0.000324 & 0.000045\\
+ \hline
+ 16000 & 0.000205 & 0.163738 & 0.000106 & 0.000346 & 0.000056\\
+ \hline
+ 32000 & 0.000459 & 0.154225 & 0.000128 & 0.000349 & 0.000154\\
+ \hline
+ 64000 & 0.000772 & 0.137835 & 0.000227 & 0.000356 & 0.000261\\
+ \hline
+ 128000 & 0.001514 & 0.140842 & 0.000374 & 0.000365 & 0.000512\\
+ \hline 
+ 256000 & 0.002899 & 0.141219 & 0.000667 & 0.000377 & 0.001167\\
+ \hline 
+ 1000000 & 0.010954 & 0.140619 & 0.002301 & 0.000527 & 0.002632\\
+ \hline
+ 2000000 & 0.020591 & 0.156192 & 0.004212 & 0.000766 & 0.005400\\
+ \hline
+ \end{tabular}
+
+\subsubsection{Comments} 
+ The different execution times relate to the number of elements in different ways. The execution times for allocating device variables generally are similar because the same device variables will be allocated regardless of the size of the array. The execution times for setting up the problem, copying data from host to device and vice-versa are directly proportional to the number of elements. I assumed that the time taken to launch the kernel would follow the same trend but the results do not support this assumption. Maybe it has to do with the fact that a noticeable difference in launch time can only be observed with large elements. The code 'fails' after two million elements because of the floating point limitations that produce inaccurate results which exceed the relative error.
+
+\subsection{Answers}
+\subsubsection{a}
+In the code, a thread block or a block size is defined as 512 which is a multiple of 2. There is a check that ensures when the global index exceeds the size of the input array, the remaining threads in the thread block load zeroes. To improve the speed up performance of the code the input elements were loaded into shared memory which is faster than global memory. Mathematical operations found in the up sweep and down sweep portions of the kernel such as multiplying or dividing by two were defined using binary shift which is faster than its arithmetic counterpart. To improve the efficient use of the memory banks, a memory bank offset was calculated and added to the different points in the shared memory in order to avoid memory banking conflicts.
+
+\subsection{Kernel} 
+\inputminted[breaklines, linenos]{c}{./prefix-scan-kernel.cu}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}

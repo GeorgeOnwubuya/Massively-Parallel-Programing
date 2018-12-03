@@ -1,0 +1,21 @@
+==2216== Profiling application: ~/5.1-reduction/reduction
+==2216== Profiling result:
+Type Time(%) Time     Calls       Avg       Min       Max  Name
+GPU:95.56% 1.3071ms   1  1.3071ms  1.3071ms  1.3071ms  [CUDA memcpy HtoD]
+    4.04%  55.295us   1  55.295us  55.295us  55.295us  reduction(float*, 
+                                                       float*, unsigned int)
+    0.22%  3.0720us   1  3.0720us  3.0720us  3.0720us  [CUDA memcpy DtoH]
+    0.17%  2.3040us   1  2.3040us  2.3040us  2.3040us  [CUDA memset]
+API:98.10% 159.31ms   2  79.656ms  107.38us  159.21ms  cudaMalloc
+    1.11%  1.8050ms   2  902.48us  46.750us  1.7582ms  cudaMemcpy
+    0.36%  582.29us   2  291.14us  151.96us  430.33us  cudaFree
+    0.12%  199.57us   94  2.1230us    452ns  59.308us  cuDeviceGetAttribute
+    0.09%  151.71us   1  151.71us  151.71us  151.71us  cuDeviceTotalMem
+    0.09%  146.07us   1  146.07us  146.07us  146.07us  cudaLaunch
+    0.09%  145.83us   4  36.457us  5.8600us  68.846us  cudaDeviceSynchronize
+    0.01%  18.648us   1  18.648us  18.648us  18.648us  cudaMemset
+    0.01%  17.578us   1  17.578us  17.578us  17.578us  cuDeviceGetName
+    0.00%  7.4720us   3  2.4900us     634ns  5.9320us  cudaSetupArgument
+    0.00%  5.2380us   3  1.7460us     516ns  3.4700us  cuDeviceGetCount
+    0.00%  2.5490us   1  2.5490us  2.5490us  2.5490us  cudaConfigureCall
+    0.00%  1.9430us   2     971ns     629ns  1.3140us  cuDeviceGet

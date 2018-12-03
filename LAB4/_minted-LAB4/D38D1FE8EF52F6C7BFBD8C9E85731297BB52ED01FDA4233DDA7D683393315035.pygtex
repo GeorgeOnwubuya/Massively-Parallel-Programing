@@ -1,0 +1,137 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cm}{/******************************************************************************}
+\PYG{c+cm}{ *cr}
+\PYG{c+cm}{ *cr            (C) Copyright 2010 The Board of Trustees of the}
+\PYG{c+cm}{ *cr                        University of Illinois}
+\PYG{c+cm}{ *cr                         All Rights Reserved}
+\PYG{c+cm}{ *cr}
+\PYG{c+cm}{ ******************************************************************************/}
+
+\PYG{c+cp}{\PYGZsh{}include} \PYG{c+cpf}{\PYGZlt{}stdio.h\PYGZgt{}}
+\PYG{c+cp}{\PYGZsh{}include} \PYG{c+cpf}{\PYGZdq{}support.h\PYGZdq{}}
+\PYG{c+cp}{\PYGZsh{}include} \PYG{c+cpf}{\PYGZdq{}kernel.cu\PYGZdq{}}
+
+\PYG{k+kt}{int} \PYG{n+nf}{main}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{argc}\PYG{p}{,} \PYG{k+kt}{char}\PYG{o}{*} \PYG{n}{argv}\PYG{p}{[])}
+\PYG{p}{\PYGZob{}}
+    \PYG{n}{Timer} \PYG{n}{timer}\PYG{p}{;}
+
+    \PYG{c+c1}{// Initialize host variables \PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}}
+
+    \PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{Setting up the problem...\PYGZdq{}}\PYG{p}{);} \PYG{n}{fflush}\PYG{p}{(}\PYG{n}{stdout}\PYG{p}{);}
+    \PYG{n}{startTime}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{timer}\PYG{p}{);}
+
+	\PYG{n}{Matrix} \PYG{n}{M\PYGZus{}h}\PYG{p}{,} \PYG{n}{N\PYGZus{}h}\PYG{p}{,} \PYG{n}{P\PYGZus{}h}\PYG{p}{;} \PYG{c+c1}{// M: filter, N: input image, P: output image}
+	\PYG{n}{Matrix} \PYG{n}{N\PYGZus{}d}\PYG{p}{,} \PYG{n}{P\PYGZus{}d}\PYG{p}{;}
+	\PYG{k+kt}{unsigned} \PYG{n}{imageHeight}\PYG{p}{,} \PYG{n}{imageWidth}\PYG{p}{;}
+	\PYG{n}{cudaError\PYGZus{}t} \PYG{n}{cuda\PYGZus{}ret}\PYG{p}{;}
+	\PYG{n}{dim3} \PYG{n}{dim\PYGZus{}grid}\PYG{p}{,} \PYG{n}{dim\PYGZus{}block}\PYG{p}{;}
+
+	\PYG{c+cm}{/* Read image dimensions */}
+    \PYG{k}{if} \PYG{p}{(}\PYG{n}{argc} \PYG{o}{==} \PYG{l+m+mi}{1}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+        \PYG{n}{imageHeight} \PYG{o}{=} \PYG{l+m+mi}{600}\PYG{p}{;}
+        \PYG{n}{imageWidth} \PYG{o}{=} \PYG{l+m+mi}{1000}\PYG{p}{;}
+    \PYG{p}{\PYGZcb{}} \PYG{k}{else} \PYG{k}{if} \PYG{p}{(}\PYG{n}{argc} \PYG{o}{==} \PYG{l+m+mi}{2}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+        \PYG{n}{imageHeight} \PYG{o}{=} \PYG{n}{atoi}\PYG{p}{(}\PYG{n}{argv}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]);}
+        \PYG{n}{imageWidth} \PYG{o}{=} \PYG{n}{atoi}\PYG{p}{(}\PYG{n}{argv}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]);}
+    \PYG{p}{\PYGZcb{}} \PYG{k}{else} \PYG{k}{if} \PYG{p}{(}\PYG{n}{argc} \PYG{o}{==} \PYG{l+m+mi}{3}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+        \PYG{n}{imageHeight} \PYG{o}{=} \PYG{n}{atoi}\PYG{p}{(}\PYG{n}{argv}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]);}
+        \PYG{n}{imageWidth} \PYG{o}{=} \PYG{n}{atoi}\PYG{p}{(}\PYG{n}{argv}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]);}
+    \PYG{p}{\PYGZcb{}} \PYG{k}{else} \PYG{p}{\PYGZob{}}
+        \PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{    Invalid input parameters!\PYGZdq{}}
+           \PYG{l+s}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{    Usage: ./convolution          \PYGZsh{} Image is 600 x 1000\PYGZdq{}}
+           \PYG{l+s}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{    Usage: ./convolution \PYGZlt{}m\PYGZgt{}      \PYGZsh{} Image is m x m\PYGZdq{}}
+           \PYG{l+s}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{    Usage: ./convolution \PYGZlt{}m\PYGZgt{} \PYGZlt{}n\PYGZgt{}  \PYGZsh{} Image is m x n\PYGZdq{}}
+           \PYG{l+s}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{);}
+        \PYG{n}{exit}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{);}
+    \PYG{p}{\PYGZcb{}}
+
+	\PYG{c+cm}{/* Allocate host memory */}
+	\PYG{n}{M\PYGZus{}h} \PYG{o}{=} \PYG{n}{allocateMatrix}\PYG{p}{(}\PYG{n}{FILTER\PYGZus{}SIZE}\PYG{p}{,} \PYG{n}{FILTER\PYGZus{}SIZE}\PYG{p}{);}
+	\PYG{n}{N\PYGZus{}h} \PYG{o}{=} \PYG{n}{allocateMatrix}\PYG{p}{(}\PYG{n}{imageHeight}\PYG{p}{,} \PYG{n}{imageWidth}\PYG{p}{);}
+	\PYG{n}{P\PYGZus{}h} \PYG{o}{=} \PYG{n}{allocateMatrix}\PYG{p}{(}\PYG{n}{imageHeight}\PYG{p}{,} \PYG{n}{imageWidth}\PYG{p}{);}
+
+	\PYG{c+cm}{/* Initialize filter and images */}
+	\PYG{n}{initMatrix}\PYG{p}{(}\PYG{n}{M\PYGZus{}h}\PYG{p}{);}
+	\PYG{n}{initMatrix}\PYG{p}{(}\PYG{n}{N\PYGZus{}h}\PYG{p}{);}
+
+    \PYG{n}{stopTime}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{timer}\PYG{p}{);} \PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}\PYGZpc{}f s}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{elapsedTime}\PYG{p}{(}\PYG{n}{timer}\PYG{p}{));}
+    \PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}    Image: \PYGZpc{}u x \PYGZpc{}u}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{imageHeight}\PYG{p}{,} \PYG{n}{imageWidth}\PYG{p}{);}
+    \PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}    Mask: \PYGZpc{}u x \PYGZpc{}u}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{FILTER\PYGZus{}SIZE}\PYG{p}{,} \PYG{n}{FILTER\PYGZus{}SIZE}\PYG{p}{);}
+
+    \PYG{c+c1}{// Allocate device variables \PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}}
+
+    \PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}Allocating device variables...\PYGZdq{}}\PYG{p}{);} \PYG{n}{fflush}\PYG{p}{(}\PYG{n}{stdout}\PYG{p}{);}
+    \PYG{n}{startTime}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{timer}\PYG{p}{);}
+
+	\PYG{n}{N\PYGZus{}d} \PYG{o}{=} \PYG{n}{allocateDeviceMatrix}\PYG{p}{(}\PYG{n}{imageHeight}\PYG{p}{,} \PYG{n}{imageWidth}\PYG{p}{);}
+	\PYG{n}{P\PYGZus{}d} \PYG{o}{=} \PYG{n}{allocateDeviceMatrix}\PYG{p}{(}\PYG{n}{imageHeight}\PYG{p}{,} \PYG{n}{imageWidth}\PYG{p}{);}
+
+    \PYG{n}{cudaDeviceSynchronize}\PYG{p}{();}
+    \PYG{n}{stopTime}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{timer}\PYG{p}{);} \PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}\PYGZpc{}f s}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{elapsedTime}\PYG{p}{(}\PYG{n}{timer}\PYG{p}{));}
+
+    \PYG{c+c1}{// Copy host variables to device \PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}}
+
+    \PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}Copying data from host to device...\PYGZdq{}}\PYG{p}{);} \PYG{n}{fflush}\PYG{p}{(}\PYG{n}{stdout}\PYG{p}{);}
+    \PYG{n}{startTime}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{timer}\PYG{p}{);}
+
+	\PYG{c+cm}{/* Copy image to device global memory */}
+	\PYG{n}{copyToDeviceMatrix}\PYG{p}{(}\PYG{n}{N\PYGZus{}d}\PYG{p}{,} \PYG{n}{N\PYGZus{}h}\PYG{p}{);}
+
+	\PYG{c+cm}{/* Copy mask to device constant memory */}
+
+	\PYG{n}{cuda\PYGZus{}ret} \PYG{o}{=} \PYG{n}{cudaMemcpyToSymbol}\PYG{p}{(}\PYG{n}{M\PYGZus{}c}\PYG{p}{,} \PYG{n}{M\PYGZus{}h}\PYG{p}{.}\PYG{n}{elements}\PYG{p}{,}
+	    \PYG{n}{M\PYGZus{}h}\PYG{p}{.}\PYG{n}{height}\PYG{o}{*}\PYG{n}{M\PYGZus{}h}\PYG{p}{.}\PYG{n}{width} \PYG{o}{*} \PYG{k}{sizeof}\PYG{p}{(}\PYG{k+kt}{float}\PYG{p}{));}
+	\PYG{k}{if}\PYG{p}{(}\PYG{n}{cuda\PYGZus{}ret} \PYG{o}{!=} \PYG{n}{cudaSuccess}\PYG{p}{)} \PYG{n}{FATAL}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}Unable to copy to constant memory\PYGZdq{}}\PYG{p}{);}
+
+    \PYG{n}{cudaDeviceSynchronize}\PYG{p}{();}
+    \PYG{n}{stopTime}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{timer}\PYG{p}{);} \PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}\PYGZpc{}f s}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{elapsedTime}\PYG{p}{(}\PYG{n}{timer}\PYG{p}{));}
+
+    \PYG{c+c1}{// Launch kernel \PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}}
+    \PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}Launching kernel...\PYGZdq{}}\PYG{p}{);} \PYG{n}{fflush}\PYG{p}{(}\PYG{n}{stdout}\PYG{p}{);}
+    \PYG{n}{startTime}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{timer}\PYG{p}{);}
+
+	\PYG{n}{dim\PYGZus{}block}\PYG{p}{.}\PYG{n}{x} \PYG{o}{=} \PYG{n}{BLOCK\PYGZus{}SIZE}\PYG{p}{;}
+        \PYG{n}{dim\PYGZus{}block}\PYG{p}{.}\PYG{n}{y} \PYG{o}{=} \PYG{n}{BLOCK\PYGZus{}SIZE}\PYG{p}{;}
+  	\PYG{n}{dim\PYGZus{}block}\PYG{p}{.}\PYG{n}{z} \PYG{o}{=} \PYG{l+m+mi}{1}\PYG{p}{;}
+
+	\PYG{n}{dim\PYGZus{}grid}\PYG{p}{.}\PYG{n}{x} \PYG{o}{=} \PYG{n}{imageWidth}\PYG{o}{/}\PYG{n}{TILE\PYGZus{}SIZE}\PYG{p}{;}
+	\PYG{k}{if}\PYG{p}{(}\PYG{n}{imageWidth}\PYG{o}{\PYGZpc{}}\PYG{n}{TILE\PYGZus{}SIZE} \PYG{o}{!=} \PYG{l+m+mi}{0}\PYG{p}{)} \PYG{n}{dim\PYGZus{}grid}\PYG{p}{.}\PYG{n}{x}\PYG{o}{++}\PYG{p}{;}
+	\PYG{n}{dim\PYGZus{}grid}\PYG{p}{.}\PYG{n}{y} \PYG{o}{=} \PYG{n}{imageHeight}\PYG{o}{/}\PYG{n}{TILE\PYGZus{}SIZE}\PYG{p}{;}
+	\PYG{k}{if}\PYG{p}{(}\PYG{n}{imageHeight}\PYG{o}{\PYGZpc{}}\PYG{n}{TILE\PYGZus{}SIZE} \PYG{o}{!=} \PYG{l+m+mi}{0}\PYG{p}{)} \PYG{n}{dim\PYGZus{}grid}\PYG{p}{.}\PYG{n}{y}\PYG{o}{++}\PYG{p}{;}
+	\PYG{n}{dim\PYGZus{}grid}\PYG{p}{.}\PYG{n}{z} \PYG{o}{=} \PYG{l+m+mi}{1}\PYG{p}{;}
+
+	\PYG{n}{convolution}\PYG{o}{\PYGZlt{}\PYGZlt{}\PYGZlt{}}\PYG{n}{dim\PYGZus{}grid}\PYG{p}{,} \PYG{n}{dim\PYGZus{}block}\PYG{o}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}\PYG{p}{(}\PYG{n}{N\PYGZus{}d}\PYG{p}{,} \PYG{n}{P\PYGZus{}d}\PYG{p}{);}
+
+	\PYG{n}{cuda\PYGZus{}ret} \PYG{o}{=} \PYG{n}{cudaDeviceSynchronize}\PYG{p}{();}
+	\PYG{k}{if}\PYG{p}{(}\PYG{n}{cuda\PYGZus{}ret} \PYG{o}{!=} \PYG{n}{cudaSuccess}\PYG{p}{)} \PYG{n}{FATAL}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}Unable to launch/execute kernel\PYGZdq{}}\PYG{p}{);}
+
+    \PYG{n}{cudaDeviceSynchronize}\PYG{p}{();}
+    \PYG{n}{stopTime}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{timer}\PYG{p}{);} \PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}\PYGZpc{}f s}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{elapsedTime}\PYG{p}{(}\PYG{n}{timer}\PYG{p}{));}
+
+    \PYG{c+c1}{// Copy device variables from host \PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}}
+
+    \PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}Copying data from device to host...\PYGZdq{}}\PYG{p}{);} \PYG{n}{fflush}\PYG{p}{(}\PYG{n}{stdout}\PYG{p}{);}
+    \PYG{n}{startTime}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{timer}\PYG{p}{);}
+
+    \PYG{n}{copyFromDeviceMatrix}\PYG{p}{(}\PYG{n}{P\PYGZus{}h}\PYG{p}{,} \PYG{n}{P\PYGZus{}d}\PYG{p}{);}
+
+    \PYG{n}{cudaDeviceSynchronize}\PYG{p}{();}
+    \PYG{n}{stopTime}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{timer}\PYG{p}{);} \PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}\PYGZpc{}f s}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{elapsedTime}\PYG{p}{(}\PYG{n}{timer}\PYG{p}{));}
+
+    \PYG{c+c1}{// Verify correctness \PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}}
+
+    \PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}Verifying results...\PYGZdq{}}\PYG{p}{);} \PYG{n}{fflush}\PYG{p}{(}\PYG{n}{stdout}\PYG{p}{);}
+
+    \PYG{n}{verify}\PYG{p}{(}\PYG{n}{M\PYGZus{}h}\PYG{p}{,} \PYG{n}{N\PYGZus{}h}\PYG{p}{,} \PYG{n}{P\PYGZus{}h}\PYG{p}{);}
+
+    \PYG{c+c1}{// Free memory \PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}}
+
+	\PYG{n}{freeMatrix}\PYG{p}{(}\PYG{n}{M\PYGZus{}h}\PYG{p}{);}
+	\PYG{n}{freeMatrix}\PYG{p}{(}\PYG{n}{N\PYGZus{}h}\PYG{p}{);}
+	\PYG{n}{freeMatrix}\PYG{p}{(}\PYG{n}{P\PYGZus{}h}\PYG{p}{);}
+	\PYG{n}{freeDeviceMatrix}\PYG{p}{(}\PYG{n}{N\PYGZus{}d}\PYG{p}{);}
+	\PYG{n}{freeDeviceMatrix}\PYG{p}{(}\PYG{n}{P\PYGZus{}d}\PYG{p}{);}
+
+	\PYG{k}{return} \PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

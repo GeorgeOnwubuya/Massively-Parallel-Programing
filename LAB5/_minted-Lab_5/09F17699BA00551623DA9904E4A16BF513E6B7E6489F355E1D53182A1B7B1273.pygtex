@@ -1,0 +1,138 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cm}{/******************************************************************************}
+\PYG{c+cm}{ *cr}
+\PYG{c+cm}{ *cr            (C) Copyright 2010 The Board of Trustees of the}
+\PYG{c+cm}{ *cr                        University of Illinois}
+\PYG{c+cm}{ *cr                         All Rights Reserved}
+\PYG{c+cm}{ *cr}
+\PYG{c+cm}{ ******************************************************************************/}
+
+\PYG{c+cp}{\PYGZsh{}define BLOCK\PYGZus{}SIZE 512}
+
+\PYG{c+cp}{\PYGZsh{}define NUM\PYGZus{}BANKS 32}
+\PYG{c+cp}{\PYGZsh{}define LOG\PYGZus{}NUM\PYGZus{}BANKS 5}
+
+\PYG{c+cp}{\PYGZsh{}ifdef ZERO\PYGZus{}BANK\PYGZus{}CONFLICTS}
+\PYG{c+cp}{\PYGZsh{}define CONFLICT\PYGZus{}FREE\PYGZus{}OFFSET(n) ((n) \PYGZgt{}\PYGZgt{} NUM\PYGZus{}BANKS + (n) \PYGZgt{}\PYGZgt{} (2 * LOG\PYGZus{}NUM\PYGZus{}BANKS))}
+\PYG{c+cp}{\PYGZsh{}else}
+\PYG{c+cp}{\PYGZsh{}define CONFLICT\PYGZus{}FREE\PYGZus{}OFFSET(n) ((n) \PYGZgt{}\PYGZgt{} LOG\PYGZus{}NUM\PYGZus{}BANKS)}
+\PYG{c+cp}{\PYGZsh{}endif}
+
+
+
+\PYG{c+c1}{// Define your kernels in this file you may use more than one kernel if you}
+\PYG{c+c1}{// need to}
+
+\PYG{c+c1}{// INSERT KERNEL(S) HERE}
+
+\PYG{n}{\PYGZus{}\PYGZus{}global\PYGZus{}\PYGZus{}} \PYG{k+kt}{void} \PYG{n+nf}{preScanKernel}\PYG{p}{(}\PYG{k+kt}{float} \PYG{o}{*}\PYG{n}{out}\PYG{p}{,} \PYG{k+kt}{float} \PYG{o}{*}\PYG{n}{in}\PYG{p}{,} \PYG{k+kt}{unsigned} \PYG{n}{size}\PYG{p}{,} \PYG{k+kt}{float} \PYG{o}{*}\PYG{n}{sum}\PYG{p}{)\PYGZob{}}
+    \PYG{c+c1}{// INSERT CODE HERE}
+	\PYG{n}{\PYGZus{}\PYGZus{}shared\PYGZus{}\PYGZus{}} \PYG{k+kt}{float} \PYG{n}{a\PYGZus{}s}\PYG{p}{[(}\PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{BLOCK\PYGZus{}SIZE}\PYG{p}{)} \PYG{o}{+} \PYG{n}{CONFLICT\PYGZus{}FREE\PYGZus{}OFFSET}\PYG{p}{(}\PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{BLOCK\PYGZus{}SIZE}\PYG{p}{)];}
+	\PYG{k+kt}{int} \PYG{n}{idx} \PYG{o}{=} \PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{blockIdx}\PYG{p}{.}\PYG{n}{x} \PYG{o}{*} \PYG{n}{blockDim}\PYG{p}{.}\PYG{n}{x} \PYG{o}{+} \PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;}
+
+	\PYG{k+kt}{int} \PYG{n}{thid} \PYG{o}{=} \PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;}
+	\PYG{n}{thid} \PYG{o}{+=} \PYG{n}{CONFLICT\PYGZus{}FREE\PYGZus{}OFFSET}\PYG{p}{(}\PYG{n}{thid}\PYG{p}{);}
+	\PYG{k+kt}{int} \PYG{n}{thid\PYGZus{}BS} \PYG{o}{=} \PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x} \PYG{o}{+} \PYG{n}{BLOCK\PYGZus{}SIZE}\PYG{p}{;}
+	\PYG{n}{thid\PYGZus{}BS} \PYG{o}{+=} \PYG{n}{CONFLICT\PYGZus{}FREE\PYGZus{}OFFSET}\PYG{p}{(}\PYG{n}{thid\PYGZus{}BS}\PYG{p}{);}
+
+	\PYG{n}{a\PYGZus{}s}\PYG{p}{[}\PYG{n}{thid}\PYG{p}{]}    \PYG{o}{=} \PYG{p}{((}\PYG{n}{idx}              \PYG{o}{\PYGZlt{}} \PYG{n}{size}\PYG{p}{)}\PYG{o}{?} \PYG{n}{in}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]}\PYG{o}{:}            \PYG{l+m+mf}{0.0f}\PYG{p}{);}
+        \PYG{n}{a\PYGZus{}s}\PYG{p}{[}\PYG{n}{thid\PYGZus{}BS}\PYG{p}{]} \PYG{o}{=} \PYG{p}{((}\PYG{n}{idx} \PYG{o}{+} \PYG{n}{BLOCK\PYGZus{}SIZE} \PYG{o}{\PYGZlt{}} \PYG{n}{size}\PYG{p}{)}\PYG{o}{?} \PYG{n}{in}\PYG{p}{[}\PYG{n}{idx}\PYG{o}{+}\PYG{n}{BLOCK\PYGZus{}SIZE}\PYG{p}{]}\PYG{o}{:} \PYG{l+m+mf}{0.0f}\PYG{p}{);}
+
+
+	\PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{ai}\PYG{p}{,} \PYG{n}{bi}\PYG{p}{;}
+	\PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{numThreads}\PYG{p}{,} \PYG{n}{stride}\PYG{p}{;}
+
+	\PYG{k}{for}\PYG{p}{(}\PYG{n}{numThreads} \PYG{o}{=} \PYG{n}{BLOCK\PYGZus{}SIZE}\PYG{p}{,} \PYG{n}{stride} \PYG{o}{=} \PYG{l+m+mi}{1}\PYG{p}{;} \PYG{n}{numThreads} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{0}\PYG{p}{;} \PYG{n}{numThreads} \PYG{o}{\PYGZgt{}\PYGZgt{}=} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{stride} \PYG{o}{\PYGZlt{}\PYGZlt{}=} \PYG{l+m+mi}{1}\PYG{p}{)\PYGZob{}}
+
+		\PYG{n}{ai} \PYG{o}{=} \PYG{p}{(}\PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x} \PYG{o}{*} \PYG{n}{stride} \PYG{o}{+} \PYG{n}{stride} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{);}
+		\PYG{n}{bi} \PYG{o}{=} \PYG{p}{(}\PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x} \PYG{o}{*} \PYG{n}{stride} \PYG{o}{+} \PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{stride} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{);}
+
+		\PYG{n}{ai} \PYG{o}{+=} \PYG{n}{CONFLICT\PYGZus{}FREE\PYGZus{}OFFSET}\PYG{p}{(}\PYG{n}{ai}\PYG{p}{);}
+		\PYG{n}{bi} \PYG{o}{+=} \PYG{n}{CONFLICT\PYGZus{}FREE\PYGZus{}OFFSET}\PYG{p}{(}\PYG{n}{bi}\PYG{p}{);}
+
+	\PYG{n}{\PYGZus{}\PYGZus{}syncthreads}\PYG{p}{();}
+
+		\PYG{k}{if}\PYG{p}{(}\PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x} \PYG{o}{\PYGZlt{}} \PYG{n}{numThreads}\PYG{p}{)}
+			\PYG{n}{a\PYGZus{}s}\PYG{p}{[}\PYG{n}{bi}\PYG{p}{]} \PYG{o}{+=} \PYG{n}{a\PYGZus{}s}\PYG{p}{[}\PYG{n}{ai}\PYG{p}{];}
+	\PYG{p}{\PYGZcb{}}
+
+	\PYG{k}{if}\PYG{p}{(}\PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{)\PYGZob{}}
+		\PYG{k+kt}{int} \PYG{n}{last\PYGZus{}elem} \PYG{o}{=} \PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{BLOCK\PYGZus{}SIZE} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{;}
+		\PYG{n}{last\PYGZus{}elem} \PYG{o}{+=} \PYG{n}{CONFLICT\PYGZus{}FREE\PYGZus{}OFFSET}\PYG{p}{(}\PYG{n}{last\PYGZus{}elem}\PYG{p}{);}
+		\PYG{k}{if}\PYG{p}{(}\PYG{n}{sum} \PYG{o}{!=} \PYG{n+nb}{NULL}\PYG{p}{)\PYGZob{}}
+			\PYG{n}{sum}\PYG{p}{[}\PYG{n}{blockIdx}\PYG{p}{.}\PYG{n}{x}\PYG{p}{]} \PYG{o}{=} \PYG{n}{a\PYGZus{}s}\PYG{p}{[}\PYG{n}{last\PYGZus{}elem}\PYG{p}{];}
+		\PYG{p}{\PYGZcb{}}
+		\PYG{n}{a\PYGZus{}s}\PYG{p}{[}\PYG{n}{last\PYGZus{}elem}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;}
+	\PYG{p}{\PYGZcb{}}
+
+
+	\PYG{k}{for}\PYG{p}{(}\PYG{n}{numThreads} \PYG{o}{=} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{stride} \PYG{o}{=} \PYG{n}{BLOCK\PYGZus{}SIZE}\PYG{p}{;} \PYG{n}{numThreads} \PYG{o}{\PYGZlt{}=} \PYG{n}{BLOCK\PYGZus{}SIZE}\PYG{p}{;} \PYG{n}{numThreads} \PYG{o}{\PYGZlt{}\PYGZlt{}=} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{stride} \PYG{o}{\PYGZgt{}\PYGZgt{}=} \PYG{l+m+mi}{1}\PYG{p}{)\PYGZob{}}
+
+		\PYG{n}{ai} \PYG{o}{=} \PYG{p}{(}\PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x} \PYG{o}{*} \PYG{n}{stride} \PYG{o}{+} \PYG{n}{stride} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{);}
+		\PYG{n}{bi} \PYG{o}{=} \PYG{p}{(}\PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x} \PYG{o}{*} \PYG{n}{stride} \PYG{o}{+} \PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{stride} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{);}
+
+		\PYG{n}{ai} \PYG{o}{+=} \PYG{n}{CONFLICT\PYGZus{}FREE\PYGZus{}OFFSET}\PYG{p}{(}\PYG{n}{ai}\PYG{p}{);}
+		\PYG{n}{bi} \PYG{o}{+=} \PYG{n}{CONFLICT\PYGZus{}FREE\PYGZus{}OFFSET}\PYG{p}{(}\PYG{n}{bi}\PYG{p}{);}
+
+		\PYG{n}{\PYGZus{}\PYGZus{}syncthreads}\PYG{p}{();}
+
+		\PYG{k}{if}\PYG{p}{(}\PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x} \PYG{o}{\PYGZlt{}} \PYG{n}{numThreads}\PYG{p}{)\PYGZob{}}
+		\PYG{k+kt}{float} \PYG{n}{temp} \PYG{o}{=} \PYG{n}{a\PYGZus{}s}\PYG{p}{[}\PYG{n}{bi}\PYG{p}{];}
+		\PYG{n}{a\PYGZus{}s}\PYG{p}{[}\PYG{n}{bi}\PYG{p}{]} \PYG{o}{+=} \PYG{n}{a\PYGZus{}s}\PYG{p}{[}\PYG{n}{ai}\PYG{p}{];}
+		\PYG{n}{a\PYGZus{}s}\PYG{p}{[}\PYG{n}{ai}\PYG{p}{]} \PYG{o}{=} \PYG{n}{temp}\PYG{p}{;}
+		\PYG{p}{\PYGZcb{}}
+		\PYG{n}{\PYGZus{}\PYGZus{}syncthreads}\PYG{p}{();}
+	\PYG{p}{\PYGZcb{}}
+	\PYG{k}{if}\PYG{p}{(}\PYG{n}{idx} \PYG{o}{\PYGZlt{}} \PYG{n}{size}\PYG{p}{)}
+	\PYG{n}{out}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]} \PYG{o}{=} \PYG{n}{a\PYGZus{}s}\PYG{p}{[}\PYG{n}{thid}\PYG{p}{];}
+
+	\PYG{k}{if}\PYG{p}{(}\PYG{n}{idx} \PYG{o}{+} \PYG{n}{BLOCK\PYGZus{}SIZE} \PYG{o}{\PYGZlt{}} \PYG{n}{size}\PYG{p}{)}
+	\PYG{n}{out}\PYG{p}{[}\PYG{n}{idx} \PYG{o}{+} \PYG{n}{BLOCK\PYGZus{}SIZE}\PYG{p}{]} \PYG{o}{=} \PYG{n}{a\PYGZus{}s}\PYG{p}{[}\PYG{n}{thid\PYGZus{}BS}\PYG{p}{];}
+
+\PYG{p}{\PYGZcb{}}
+
+
+\PYG{n}{\PYGZus{}\PYGZus{}global\PYGZus{}\PYGZus{}} \PYG{k+kt}{void} \PYG{n+nf}{addKernel}\PYG{p}{(}\PYG{k+kt}{float} \PYG{o}{*}\PYG{n}{out}\PYG{p}{,} \PYG{k+kt}{float} \PYG{o}{*}\PYG{n}{sum}\PYG{p}{,} \PYG{k+kt}{unsigned} \PYG{n}{size}\PYG{p}{)}
+\PYG{p}{\PYGZob{}}
+    \PYG{c+c1}{// INSERT CODE HERE}
+	\PYG{k+kt}{int} \PYG{n}{idx} \PYG{o}{=} \PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{blockIdx}\PYG{p}{.}\PYG{n}{x} \PYG{o}{*} \PYG{n}{blockDim}\PYG{p}{.}\PYG{n}{x} \PYG{o}{+} \PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;}
+
+	\PYG{k}{if}\PYG{p}{(}\PYG{n}{idx} \PYG{o}{\PYGZlt{}} \PYG{n}{size}\PYG{p}{)}
+        \PYG{n}{out}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]} \PYG{o}{+=} \PYG{n}{sum}\PYG{p}{[}\PYG{n}{blockIdx}\PYG{p}{.}\PYG{n}{x}\PYG{p}{];}
+
+        \PYG{k}{if}\PYG{p}{(}\PYG{n}{idx} \PYG{o}{+} \PYG{n}{BLOCK\PYGZus{}SIZE} \PYG{o}{\PYGZlt{}} \PYG{n}{size}\PYG{p}{)}
+        \PYG{n}{out}\PYG{p}{[}\PYG{n}{idx} \PYG{o}{+} \PYG{n}{BLOCK\PYGZus{}SIZE}\PYG{p}{]} \PYG{o}{+=} \PYG{n}{sum}\PYG{p}{[}\PYG{n}{blockIdx}\PYG{p}{.}\PYG{n}{x}\PYG{p}{];}
+
+\PYG{p}{\PYGZcb{}}
+
+\PYG{c+cm}{/******************************************************************************}
+\PYG{c+cm}{Setup and invoke your kernel(s) in this function. You may also allocate more}
+\PYG{c+cm}{GPU memory if you need to}
+\PYG{c+cm}{*******************************************************************************/}
+\PYG{k+kt}{void} \PYG{n+nf}{preScan}\PYG{p}{(}\PYG{k+kt}{float} \PYG{o}{*}\PYG{n}{out}\PYG{p}{,} \PYG{k+kt}{float} \PYG{o}{*}\PYG{n}{in}\PYG{p}{,} \PYG{k+kt}{unsigned} \PYG{n}{in\PYGZus{}size}\PYG{p}{)}
+\PYG{p}{\PYGZob{}}
+	\PYG{k+kt}{float} \PYG{o}{*}\PYG{n}{sum}\PYG{p}{;}
+	\PYG{k+kt}{unsigned} \PYG{n}{num\PYGZus{}blocks}\PYG{p}{;}
+	\PYG{n}{cudaError\PYGZus{}t} \PYG{n}{cuda\PYGZus{}ret}\PYG{p}{;}
+	\PYG{n}{dim3} \PYG{n}{dim\PYGZus{}grid}\PYG{p}{,} \PYG{n}{dim\PYGZus{}block}\PYG{p}{;}
+
+	\PYG{n}{num\PYGZus{}blocks} \PYG{o}{=} \PYG{n}{in\PYGZus{}size}\PYG{o}{/}\PYG{p}{(}\PYG{n}{BLOCK\PYGZus{}SIZE}\PYG{o}{*}\PYG{l+m+mi}{2}\PYG{p}{);}
+	\PYG{k}{if}\PYG{p}{(}\PYG{n}{in\PYGZus{}size}\PYG{o}{\PYGZpc{}}\PYG{p}{(}\PYG{n}{BLOCK\PYGZus{}SIZE}\PYG{o}{*}\PYG{l+m+mi}{2}\PYG{p}{)} \PYG{o}{!=}\PYG{l+m+mi}{0}\PYG{p}{)} \PYG{n}{num\PYGZus{}blocks}\PYG{o}{++}\PYG{p}{;}
+
+	\PYG{n}{dim\PYGZus{}block}\PYG{p}{.}\PYG{n}{x} \PYG{o}{=} \PYG{n}{BLOCK\PYGZus{}SIZE}\PYG{p}{;} \PYG{n}{dim\PYGZus{}block}\PYG{p}{.}\PYG{n}{y} \PYG{o}{=} \PYG{l+m+mi}{1}\PYG{p}{;} \PYG{n}{dim\PYGZus{}block}\PYG{p}{.}\PYG{n}{z} \PYG{o}{=} \PYG{l+m+mi}{1}\PYG{p}{;}
+	\PYG{n}{dim\PYGZus{}grid}\PYG{p}{.}\PYG{n}{x} \PYG{o}{=} \PYG{n}{num\PYGZus{}blocks}\PYG{p}{;} \PYG{n}{dim\PYGZus{}grid}\PYG{p}{.}\PYG{n}{y} \PYG{o}{=} \PYG{l+m+mi}{1}\PYG{p}{;} \PYG{n}{dim\PYGZus{}grid}\PYG{p}{.}\PYG{n}{z} \PYG{o}{=} \PYG{l+m+mi}{1}\PYG{p}{;}
+
+	\PYG{k}{if}\PYG{p}{(}\PYG{n}{num\PYGZus{}blocks} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{1}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+		\PYG{n}{cuda\PYGZus{}ret} \PYG{o}{=} \PYG{n}{cudaMalloc}\PYG{p}{((}\PYG{k+kt}{void}\PYG{o}{**}\PYG{p}{)}\PYG{o}{\PYGZam{}}\PYG{n}{sum}\PYG{p}{,} \PYG{n}{num\PYGZus{}blocks}\PYG{o}{*}\PYG{k}{sizeof}\PYG{p}{(}\PYG{k+kt}{float}\PYG{p}{));}
+		\PYG{k}{if}\PYG{p}{(}\PYG{n}{cuda\PYGZus{}ret} \PYG{o}{!=} \PYG{n}{cudaSuccess}\PYG{p}{)} \PYG{n}{FATAL}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}Unable to allocate device memory\PYGZdq{}}\PYG{p}{);}
+
+		\PYG{n}{preScanKernel}\PYG{o}{\PYGZlt{}\PYGZlt{}\PYGZlt{}}\PYG{n}{dim\PYGZus{}grid}\PYG{p}{,} \PYG{n}{dim\PYGZus{}block}\PYG{o}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}\PYG{p}{(}\PYG{n}{out}\PYG{p}{,} \PYG{n}{in}\PYG{p}{,} \PYG{n}{in\PYGZus{}size}\PYG{p}{,} \PYG{n}{sum}\PYG{p}{);}
+		\PYG{n}{preScan}\PYG{p}{(}\PYG{n}{sum}\PYG{p}{,} \PYG{n}{sum}\PYG{p}{,} \PYG{n}{num\PYGZus{}blocks}\PYG{p}{);}
+		\PYG{n}{addKernel}\PYG{o}{\PYGZlt{}\PYGZlt{}\PYGZlt{}}\PYG{n}{dim\PYGZus{}grid}\PYG{p}{,} \PYG{n}{dim\PYGZus{}block}\PYG{o}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}\PYG{p}{(}\PYG{n}{out}\PYG{p}{,} \PYG{n}{sum}\PYG{p}{,} \PYG{n}{in\PYGZus{}size}\PYG{p}{);}
+
+		\PYG{n}{cudaFree}\PYG{p}{(}\PYG{n}{sum}\PYG{p}{);}
+	\PYG{p}{\PYGZcb{}}
+	\PYG{k}{else}
+		\PYG{n}{preScanKernel}\PYG{o}{\PYGZlt{}\PYGZlt{}\PYGZlt{}}\PYG{n}{dim\PYGZus{}grid}\PYG{p}{,} \PYG{n}{dim\PYGZus{}block}\PYG{o}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}\PYG{p}{(}\PYG{n}{out}\PYG{p}{,} \PYG{n}{in}\PYG{p}{,} \PYG{n}{in\PYGZus{}size}\PYG{p}{,} \PYG{n+nb}{NULL}\PYG{p}{);}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

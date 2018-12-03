@@ -1,0 +1,132 @@
+==16781== NVPROF is profiling process 16781, command: /home/onwubuyag/mpplabs/lab6-histogram/histogram 100000
+==16781== Profiling application: /home/onwubuyag/mpplabs/lab6-histogram/histogram 100000
+==16781== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   62.98%  42.687us         1  42.687us  42.687us  42.687us  [CUDA memcpy HtoD]
+                   17.38%  11.776us         1  11.776us  11.776us  11.776us  histogram_kernel(unsigned int*, unsigned int*, unsigned int, unsigned int)
+                   10.25%  6.9440us         2  3.4720us  2.3680us  4.5760us  [CUDA memset]
+                    5.66%  3.8390us         1  3.8390us  3.8390us  3.8390us  [CUDA memcpy DtoH]
+                    3.73%  2.5280us         1  2.5280us  2.5280us  2.5280us  convert_kernel(unsigned int*, unsigned char*, unsigned int)
+      API calls:   99.20%  153.55ms         4  38.386ms  120.21us  153.15ms  cudaFree
+                    0.24%  366.06us         3  122.02us  113.67us  130.75us  cudaMalloc
+                    0.16%  249.66us         2  124.83us  32.188us  217.47us  cudaMemcpy
+                    0.12%  189.12us        94  2.0110us     441ns  59.560us  cuDeviceGetAttribute
+                    0.11%  168.25us         2  84.126us  15.928us  152.33us  cudaLaunch
+                    0.10%  151.19us         1  151.19us  151.19us  151.19us  cuDeviceTotalMem
+                    0.03%  49.593us         4  12.398us  4.7720us  25.408us  cudaDeviceSynchronize
+                    0.02%  28.456us         2  14.228us  10.896us  17.560us  cudaMemset
+                    0.01%  16.682us         1  16.682us  16.682us  16.682us  cuDeviceGetName
+                    0.01%  10.743us         7  1.5340us     451ns  6.9420us  cudaSetupArgument
+                    0.00%  6.3530us         3  2.1170us     558ns  4.4370us  cuDeviceGetCount
+                    0.00%  3.0250us         2  1.5120us  1.0070us  2.0180us  cudaConfigureCall
+                    0.00%  1.6650us         2     832ns     501ns  1.1640us  cuDeviceGet
+==16792== NVPROF is profiling process 16792, command: /home/onwubuyag/mpplabs/lab6-histogram/histogram 200000
+==16792== Profiling application: /home/onwubuyag/mpplabs/lab6-histogram/histogram 200000
+==16792== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   71.71%  80.158us         1  80.158us  80.158us  80.158us  [CUDA memcpy HtoD]
+                   16.43%  18.367us         1  18.367us  18.367us  18.367us  histogram_kernel(unsigned int*, unsigned int*, unsigned int, unsigned int)
+                    6.04%  6.7520us         2  3.3760us  2.2400us  4.5120us  [CUDA memset]
+                    3.58%  4.0000us         1  4.0000us  4.0000us  4.0000us  [CUDA memcpy DtoH]
+                    2.23%  2.4960us         1  2.4960us  2.4960us  2.4960us  convert_kernel(unsigned int*, unsigned char*, unsigned int)
+      API calls:   98.94%  140.04ms         4  35.010ms  97.725us  139.67ms  cudaFree
+                    0.30%  425.37us         2  212.69us  33.158us  392.22us  cudaMemcpy
+                    0.28%  393.83us         3  131.28us  108.84us  167.71us  cudaMalloc
+                    0.14%  193.85us        94  2.0620us     442ns  41.518us  cuDeviceGetAttribute
+                    0.13%  177.05us         2  88.523us  34.141us  142.91us  cudaLaunch
+                    0.11%  154.00us         1  154.00us  154.00us  154.00us  cuDeviceTotalMem
+                    0.06%  87.130us         4  21.782us  4.4730us  63.834us  cudaDeviceSynchronize
+                    0.02%  28.744us         2  14.372us  10.702us  18.042us  cudaMemset
+                    0.01%  15.970us         1  15.970us  15.970us  15.970us  cuDeviceGetName
+                    0.01%  9.8390us         7  1.4050us     444ns  6.2940us  cudaSetupArgument
+                    0.00%  5.6710us         3  1.8900us     580ns  3.8220us  cuDeviceGetCount
+                    0.00%  2.9440us         2  1.4720us     914ns  2.0300us  cudaConfigureCall
+                    0.00%  1.6680us         2     834ns     579ns  1.0890us  cuDeviceGet
+==16803== NVPROF is profiling process 16803, command: /home/onwubuyag/mpplabs/lab6-histogram/histogram 400000
+==16803== Profiling application: /home/onwubuyag/mpplabs/lab6-histogram/histogram 400000
+==16803== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   87.18%  315.90us         1  315.90us  315.90us  315.90us  [CUDA memcpy HtoD]
+                    9.00%  32.614us         1  32.614us  32.614us  32.614us  histogram_kernel(unsigned int*, unsigned int*, unsigned int, unsigned int)
+                    1.90%  6.8820us         2  3.4410us  2.2410us  4.6410us  [CUDA memset]
+                    1.19%  4.3200us         1  4.3200us  4.3200us  4.3200us  [CUDA memcpy DtoH]
+                    0.73%  2.6560us         1  2.6560us  2.6560us  2.6560us  convert_kernel(unsigned int*, unsigned char*, unsigned int)
+      API calls:   98.72%  139.10ms         4  34.774ms  98.992us  138.67ms  cudaFree
+                    0.55%  774.54us         2  387.27us  32.746us  741.80us  cudaMemcpy
+                    0.29%  405.41us         3  135.14us  117.26us  159.97us  cudaMalloc
+                    0.12%  171.31us         2  85.652us  16.186us  155.12us  cudaLaunch
+                    0.12%  169.37us        94  1.8010us     452ns  42.125us  cuDeviceGetAttribute
+                    0.11%  154.12us         1  154.12us  154.12us  154.12us  cuDeviceTotalMem
+                    0.04%  59.282us         4  14.820us  4.7150us  35.708us  cudaDeviceSynchronize
+                    0.02%  28.739us         2  14.369us  11.228us  17.511us  cudaMemset
+                    0.01%  14.253us         1  14.253us  14.253us  14.253us  cuDeviceGetName
+                    0.01%  9.7370us         7  1.3910us     471ns  6.1680us  cudaSetupArgument
+                    0.00%  5.3380us         3  1.7790us     574ns  3.5110us  cuDeviceGetCount
+                    0.00%  2.8610us         2  1.4300us     957ns  1.9040us  cudaConfigureCall
+                    0.00%  1.8710us         2     935ns     615ns  1.2560us  cuDeviceGet
+==16814== NVPROF is profiling process 16814, command: /home/onwubuyag/mpplabs/lab6-histogram/histogram 800000
+==16814== Profiling application: /home/onwubuyag/mpplabs/lab6-histogram/histogram 800000
+==16814== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   92.54%  956.36us         1  956.36us  956.36us  956.36us  [CUDA memcpy HtoD]
+                    6.10%  63.039us         1  63.039us  63.039us  63.039us  histogram_kernel(unsigned int*, unsigned int*, unsigned int, unsigned int)
+                    0.67%  6.8800us         2  3.4400us  2.2400us  4.6400us  [CUDA memset]
+                    0.44%  4.5440us         1  4.5440us  4.5440us  4.5440us  [CUDA memcpy DtoH]
+                    0.26%  2.6560us         1  2.6560us  2.6560us  2.6560us  convert_kernel(unsigned int*, unsigned char*, unsigned int)
+      API calls:   98.34%  140.16ms         4  35.039ms  108.66us  139.52ms  cudaFree
+                    0.94%  1.3444ms         2  672.22us  35.282us  1.3092ms  cudaMemcpy
+                    0.26%  364.94us         3  121.65us  100.10us  134.70us  cudaMalloc
+                    0.13%  184.05us        94  1.9580us     451ns  59.073us  cuDeviceGetAttribute
+                    0.11%  157.25us         2  78.624us  15.798us  141.45us  cudaLaunch
+                    0.11%  150.43us         1  150.43us  150.43us  150.43us  cuDeviceTotalMem
+                    0.06%  92.349us         4  23.087us  5.1040us  68.187us  cudaDeviceSynchronize
+                    0.02%  29.112us         2  14.556us  11.043us  18.069us  cudaMemset
+                    0.01%  17.852us         1  17.852us  17.852us  17.852us  cuDeviceGetName
+                    0.01%  10.113us         7  1.4440us     437ns  6.4120us  cudaSetupArgument
+                    0.00%  5.8470us         3  1.9490us     583ns  3.9400us  cuDeviceGetCount
+                    0.00%  3.0660us         2  1.5330us  1.0970us  1.9690us  cudaConfigureCall
+                    0.00%  1.6880us         2     844ns     557ns  1.1310us  cuDeviceGet
+==16825== NVPROF is profiling process 16825, command: /home/onwubuyag/mpplabs/lab6-histogram/histogram 1000000
+==16825== Profiling application: /home/onwubuyag/mpplabs/lab6-histogram/histogram 1000000
+==16825== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   93.80%  1.3789ms         1  1.3789ms  1.3789ms  1.3789ms  [CUDA memcpy HtoD]
+                    5.26%  77.356us         1  77.356us  77.356us  77.356us  histogram_kernel(unsigned int*, unsigned int*, unsigned int, unsigned int)
+                    0.47%  6.9140us         2  3.4570us  2.2730us  4.6410us  [CUDA memset]
+                    0.29%  4.1930us         1  4.1930us  4.1930us  4.1930us  [CUDA memcpy DtoH]
+                    0.18%  2.6240us         1  2.6240us  2.6240us  2.6240us  convert_kernel(unsigned int*, unsigned char*, unsigned int)
+      API calls:   98.06%  143.38ms         4  35.845ms  103.54us  142.67ms  cudaFree
+                    1.26%  1.8409ms         2  920.47us  34.196us  1.8067ms  cudaMemcpy
+                    0.25%  361.03us         3  120.34us  104.13us  131.44us  cudaMalloc
+                    0.11%  161.37us         2  80.684us  16.845us  144.52us  cudaLaunch
+                    0.11%  153.67us        94  1.6340us     453ns  38.530us  cuDeviceGetAttribute
+                    0.10%  149.54us         1  149.54us  149.54us  149.54us  cuDeviceTotalMem
+                    0.06%  88.168us         4  22.042us  4.8840us  63.330us  cudaDeviceSynchronize
+                    0.03%  42.938us         2  21.469us  17.733us  25.205us  cudaMemset
+                    0.01%  18.113us         1  18.113us  18.113us  18.113us  cuDeviceGetName
+                    0.01%  9.8450us         7  1.4060us     438ns  6.3880us  cudaSetupArgument
+                    0.00%  6.5220us         3  2.1740us     646ns  4.4870us  cuDeviceGetCount
+                    0.00%  2.8190us         2  1.4090us     935ns  1.8840us  cudaConfigureCall
+                    0.00%  1.8520us         2     926ns     651ns  1.2010us  cuDeviceGet
+==16836== NVPROF is profiling process 16836, command: /home/onwubuyag/mpplabs/lab6-histogram/histogram 1600000
+==16836== Profiling application: /home/onwubuyag/mpplabs/lab6-histogram/histogram 1600000
+==16836== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   94.55%  2.3343ms         1  2.3343ms  2.3343ms  2.3343ms  [CUDA memcpy HtoD]
+                    4.88%  120.38us         1  120.38us  120.38us  120.38us  histogram_kernel(unsigned int*, unsigned int*, unsigned int, unsigned int)
+                    0.28%  6.9760us         2  3.4880us  2.2720us  4.7040us  [CUDA memset]
+                    0.17%  4.3200us         1  4.3200us  4.3200us  4.3200us  [CUDA memcpy DtoH]
+                    0.11%  2.7520us         1  2.7520us  2.7520us  2.7520us  convert_kernel(unsigned int*, unsigned char*, unsigned int)
+      API calls:   97.41%  141.24ms         4  35.310ms  102.12us  140.26ms  cudaFree
+                    1.90%  2.7523ms         2  1.3762ms  33.967us  2.7183ms  cudaMemcpy
+                    0.27%  392.60us         3  130.87us  118.50us  155.02us  cudaMalloc
+                    0.11%  157.60us         2  78.799us  15.451us  142.15us  cudaLaunch
+                    0.11%  154.40us        94  1.6420us     451ns  38.678us  cuDeviceGetAttribute
+                    0.10%  149.68us         1  149.68us  149.68us  149.68us  cuDeviceTotalMem
+                    0.05%  70.629us         4  17.657us  4.6120us  47.116us  cudaDeviceSynchronize
+                    0.02%  28.445us         2  14.222us  11.024us  17.421us  cudaMemset
+                    0.02%  23.885us         1  23.885us  23.885us  23.885us  cuDeviceGetName
+                    0.01%  9.9800us         7  1.4250us     439ns  6.4630us  cudaSetupArgument
+                    0.00%  6.1310us         3  2.0430us     585ns  4.3260us  cuDeviceGetCount
+                    0.00%  2.6600us         2  1.3300us     887ns  1.7730us  cudaConfigureCall
+                    0.00%  1.7650us         2     882ns     608ns  1.1570us  cuDeviceGet

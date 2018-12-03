@@ -1,0 +1,84 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cm}{/**********:\PYGZob{}********************************************************************}
+\PYG{c+cm}{ *cr}
+\PYG{c+cm}{ *cr            (C) Copyright 2010 The Board of Trustees of the}
+\PYG{c+cm}{ *cr                        University of Illinois}
+\PYG{c+cm}{ *cr                         All Rights Reserved}
+\PYG{c+cm}{ *cr}
+\PYG{c+cm}{ ******************************************************************************/}
+
+\PYG{c+cp}{\PYGZsh{}include} \PYG{c+cpf}{\PYGZlt{}stdio.h\PYGZgt{}}
+
+\PYG{n}{\PYGZus{}\PYGZus{}global\PYGZus{}\PYGZus{}} \PYG{k+kt}{void} \PYG{n+nf}{mysgemm}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{m}\PYG{p}{,} \PYG{k+kt}{int} \PYG{n}{n}\PYG{p}{,} \PYG{k+kt}{int} \PYG{n}{k}\PYG{p}{,} \PYG{k}{const} \PYG{k+kt}{float} \PYG{o}{*}\PYG{n}{A}\PYG{p}{,} \PYG{k}{const} \PYG{k+kt}{float} \PYG{o}{*}\PYG{n}{B}\PYG{p}{,} \PYG{k+kt}{float}\PYG{o}{*} \PYG{n}{C}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+
+    \PYG{c+cm}{/********************************************************************}
+\PYG{c+cm}{     *}
+\PYG{c+cm}{     * Compute C = A x B}
+\PYG{c+cm}{     *   where A is a (m x k) matrix}
+\PYG{c+cm}{     *   where B is a (k x n) matrix}
+\PYG{c+cm}{     *   where C is a (m x n) matrix}
+\PYG{c+cm}{     *}
+\PYG{c+cm}{     ********************************************************************/}
+
+    \PYG{c+c1}{// INSERT KERNEL CODE HERE}
+    \PYG{k+kt}{int} \PYG{n}{row}\PYG{p}{,} \PYG{n}{col}\PYG{p}{;}
+
+    \PYG{n}{row} \PYG{o}{=} \PYG{n}{blockIdx}\PYG{p}{.}\PYG{n}{y}\PYG{o}{*}\PYG{n}{blockDim}\PYG{p}{.}\PYG{n}{y}\PYG{o}{+}\PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{y}\PYG{p}{;}
+    
+    \PYG{n}{col} \PYG{o}{=} \PYG{n}{blockIdx}\PYG{p}{.}\PYG{n}{x}\PYG{o}{*}\PYG{n}{blockDim}\PYG{p}{.}\PYG{n}{x}\PYG{o}{+}\PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;}
+    
+   
+    \PYG{k}{if}\PYG{p}{((} \PYG{n}{row} \PYG{o}{\PYGZlt{}} \PYG{n}{m}\PYG{p}{)} \PYG{o}{\PYGZam{}\PYGZam{}} \PYG{p}{(}\PYG{n}{col} \PYG{o}{\PYGZlt{}} \PYG{n}{n}\PYG{p}{))}
+    \PYG{p}{\PYGZob{}}
+	\PYG{k+kt}{float} \PYG{n}{acc} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;}
+
+	\PYG{k}{for}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{index} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;} \PYG{n}{index} \PYG{o}{\PYGZlt{}} \PYG{n}{k}\PYG{p}{;} \PYG{n}{index}\PYG{o}{++}\PYG{p}{)}
+        \PYG{p}{\PYGZob{}}
+	   \PYG{n}{acc} \PYG{o}{=} \PYG{n}{acc} \PYG{o}{+} \PYG{n}{A}\PYG{p}{[}\PYG{n}{row} \PYG{o}{*} \PYG{n}{k} \PYG{o}{+} \PYG{n}{index}\PYG{p}{]} \PYG{o}{*} \PYG{n}{B}\PYG{p}{[}\PYG{n}{index} \PYG{o}{*} \PYG{n}{n} \PYG{o}{+} \PYG{n}{col}\PYG{p}{];}
+        \PYG{p}{\PYGZcb{}}
+
+        \PYG{n}{C}\PYG{p}{[}\PYG{n}{row} \PYG{o}{*} \PYG{n}{n} \PYG{o}{+} \PYG{n}{col}\PYG{p}{]} \PYG{o}{=} \PYG{n}{acc}\PYG{p}{;}  			
+
+    \PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kt}{void} \PYG{n+nf}{basicSgemm}\PYG{p}{(}\PYG{k+kt}{char} \PYG{n}{transa}\PYG{p}{,} \PYG{k+kt}{char} \PYG{n}{transb}\PYG{p}{,} \PYG{k+kt}{int} \PYG{n}{m}\PYG{p}{,} \PYG{k+kt}{int} \PYG{n}{n}\PYG{p}{,} \PYG{k+kt}{int} \PYG{n}{k}\PYG{p}{,} \PYG{k+kt}{float} \PYG{n}{alpha}\PYG{p}{,} \PYG{k}{const} \PYG{k+kt}{float} \PYG{o}{*}\PYG{n}{A}\PYG{p}{,} \PYG{k+kt}{int} \PYG{n}{lda}\PYG{p}{,} \PYG{k}{const} \PYG{k+kt}{float} \PYG{o}{*}\PYG{n}{B}\PYG{p}{,} \PYG{k+kt}{int} \PYG{n}{ldb}\PYG{p}{,} \PYG{k+kt}{float} \PYG{n}{beta}\PYG{p}{,} \PYG{k+kt}{float} \PYG{o}{*}\PYG{n}{C}\PYG{p}{,} \PYG{k+kt}{int} \PYG{n}{ldc}\PYG{p}{)}
+\PYG{p}{\PYGZob{}}
+    \PYG{k}{if} \PYG{p}{((}\PYG{n}{transa} \PYG{o}{!=} \PYG{l+s+sc}{\PYGZsq{}N\PYGZsq{}}\PYG{p}{)} \PYG{o}{\PYGZam{}\PYGZam{}} \PYG{p}{(}\PYG{n}{transa} \PYG{o}{!=} \PYG{l+s+sc}{\PYGZsq{}n\PYGZsq{}}\PYG{p}{))} \PYG{p}{\PYGZob{}}
+	\PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}unsupported value of \PYGZsq{}transa\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{);}
+    	\PYG{k}{return}\PYG{p}{;}
+    \PYG{p}{\PYGZcb{}}
+
+    \PYG{k}{if} \PYG{p}{((}\PYG{n}{transb} \PYG{o}{!=} \PYG{l+s+sc}{\PYGZsq{}N\PYGZsq{}}\PYG{p}{)} \PYG{o}{\PYGZam{}\PYGZam{}} \PYG{p}{(}\PYG{n}{transb} \PYG{o}{!=} \PYG{l+s+sc}{\PYGZsq{}n\PYGZsq{}}\PYG{p}{))} \PYG{p}{\PYGZob{}}
+	\PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}unsupported value of \PYGZsq{}transb\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{);}
+	\PYG{k}{return}\PYG{p}{;}
+    \PYG{p}{\PYGZcb{}}
+
+    \PYG{k}{if} \PYG{p}{((}\PYG{n}{alpha} \PYG{o}{\PYGZhy{}} \PYG{l+m+mf}{1.0f} \PYG{o}{\PYGZgt{}} \PYG{l+m+mf}{1e\PYGZhy{}10}\PYG{p}{)} \PYG{o}{||} \PYG{p}{(}\PYG{n}{alpha} \PYG{o}{\PYGZhy{}} \PYG{l+m+mf}{1.0f} \PYG{o}{\PYGZlt{}} \PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{1e\PYGZhy{}10}\PYG{p}{))} \PYG{p}{\PYGZob{}}
+	\PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}unsupported value of alpha}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{);}
+	\PYG{k}{return}\PYG{p}{;}
+    \PYG{p}{\PYGZcb{}}
+
+    \PYG{k}{if} \PYG{p}{((}\PYG{n}{beta} \PYG{o}{\PYGZhy{}} \PYG{l+m+mf}{0.0f} \PYG{o}{\PYGZgt{}} \PYG{l+m+mf}{1e\PYGZhy{}10}\PYG{p}{)} \PYG{o}{||} \PYG{p}{(}\PYG{n}{beta} \PYG{o}{\PYGZhy{}} \PYG{l+m+mf}{0.0f} \PYG{o}{\PYGZlt{}} \PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{1e\PYGZhy{}10}\PYG{p}{))} \PYG{p}{\PYGZob{}}
+	\PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}unsupported value of beta}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{);}
+	\PYG{k}{return}\PYG{p}{;}
+    \PYG{p}{\PYGZcb{}}
+
+    \PYG{c+c1}{// Initialize thread block and kernel grid dimensions \PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}}
+
+    \PYG{k}{const} \PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{BLOCK\PYGZus{}SIZE} \PYG{o}{=} \PYG{l+m+mi}{16}\PYG{p}{;} \PYG{c+c1}{// Use 16x16 thread blocks}
+
+    \PYG{c+c1}{//INSERT CODE HERE}
+
+    \PYG{n}{dim3} \PYG{n}{block}\PYG{p}{(}\PYG{n}{BLOCK\PYGZus{}SIZE}\PYG{p}{,} \PYG{n}{BLOCK\PYGZus{}SIZE} \PYG{p}{,}\PYG{l+m+mi}{1}\PYG{p}{);}
+    \PYG{n}{dim3} \PYG{n}{grid}\PYG{p}{((}\PYG{n}{n} \PYG{o}{+} \PYG{n}{BLOCK\PYGZus{}SIZE} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{)}\PYG{o}{/}\PYG{n}{BLOCK\PYGZus{}SIZE}\PYG{p}{,} \PYG{p}{(}\PYG{n}{m} \PYG{o}{+} \PYG{n}{BLOCK\PYGZus{}SIZE} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{)}\PYG{o}{/}\PYG{n}{BLOCK\PYGZus{}SIZE}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{);}
+    
+
+    \PYG{c+c1}{// Invoke CUDA kernel \PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}}
+
+    \PYG{c+c1}{//INSERT CODE HERE}
+
+    \PYG{n}{mysgemm}\PYG{o}{\PYGZlt{}\PYGZlt{}\PYGZlt{}} \PYG{n}{grid}\PYG{p}{,} \PYG{n}{block}\PYG{o}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}\PYG{p}{(}\PYG{n}{m}\PYG{p}{,} \PYG{n}{n}\PYG{p}{,} \PYG{n}{k}\PYG{p}{,} \PYG{n}{A}\PYG{p}{,} \PYG{n}{B}\PYG{p}{,} \PYG{n}{C}\PYG{p}{);}
+
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

@@ -1,0 +1,154 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cm}{/******************************************************************************}
+\PYG{c+cm}{ *cr}
+\PYG{c+cm}{ *cr            (C) Copyright 2010 The Board of Trustees of the}
+\PYG{c+cm}{ *cr                        University of Illinois}
+\PYG{c+cm}{ *cr                         All Rights Reserved}
+\PYG{c+cm}{ *cr}
+\PYG{c+cm}{ ******************************************************************************/}
+
+\PYG{c+c1}{// Define your kernels in this file you may use more than one kernel if you}
+\PYG{c+c1}{// need to}
+\PYG{n}{\PYGZus{}\PYGZus{}global\PYGZus{}\PYGZus{}} \PYG{k+kt}{void} \PYG{n+nf}{histogram\PYGZus{}kernel}\PYG{p}{(}\PYG{k+kt}{unsigned} \PYG{k+kt}{int}\PYG{o}{*} \PYG{n}{input}\PYG{p}{,} \PYG{k+kt}{unsigned} \PYG{k+kt}{int}\PYG{o}{*} \PYG{n}{bins}\PYG{p}{,} 
+    \PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{num\PYGZus{}elements}\PYG{p}{,} \PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{num\PYGZus{}bins}\PYG{p}{)\PYGZob{}}
+
+	\PYG{k}{extern} \PYG{n}{\PYGZus{}\PYGZus{}shared\PYGZus{}\PYGZus{}} \PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{bins\PYGZus{}s}\PYG{p}{[];}
+	
+	\PYG{c+c1}{//Shared Memory}
+	\PYG{k+kt}{int} \PYG{n}{thid} \PYG{o}{=} \PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;}
+	\PYG{k}{while}\PYG{p}{(}\PYG{n}{thid} \PYG{o}{\PYGZlt{}} \PYG{n}{num\PYGZus{}bins}\PYG{p}{)\PYGZob{}}
+
+		\PYG{n}{bins\PYGZus{}s}\PYG{p}{[}\PYG{n}{thid}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mi}{0u}\PYG{p}{;}
+		\PYG{n}{thid} \PYG{o}{+=} \PYG{n}{blockDim}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;}
+	\PYG{p}{\PYGZcb{}}
+	\PYG{n}{\PYGZus{}\PYGZus{}syncthreads}\PYG{p}{();}
+
+
+	\PYG{c+c1}{//Histogram calculation}
+	\PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{element} \PYG{o}{=} \PYG{n}{blockIdx}\PYG{p}{.}\PYG{n}{x} \PYG{o}{*} \PYG{n}{blockDim}\PYG{p}{.}\PYG{n}{x} \PYG{o}{+} \PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;}
+	
+	\PYG{k}{while}\PYG{p}{(}\PYG{n}{element} \PYG{o}{\PYGZlt{}} \PYG{n}{num\PYGZus{}elements}\PYG{p}{)\PYGZob{}}
+
+		\PYG{n}{atomicAdd}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{p}{(}\PYG{n}{bins\PYGZus{}s}\PYG{p}{[}\PYG{n}{input}\PYG{p}{[}\PYG{n}{element}\PYG{p}{]]),} \PYG{l+m+mi}{1}\PYG{p}{);}
+		\PYG{n}{element} \PYG{o}{+=} \PYG{n}{blockDim}\PYG{p}{.}\PYG{n}{x} \PYG{o}{*} \PYG{n}{gridDim}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;}
+	\PYG{p}{\PYGZcb{}}
+	\PYG{n}{\PYGZus{}\PYGZus{}syncthreads}\PYG{p}{();}
+
+	\PYG{c+c1}{//Global Memory}
+	\PYG{n}{thid} \PYG{o}{=} \PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;}
+	\PYG{k}{while}\PYG{p}{(}\PYG{n}{thid} \PYG{o}{\PYGZlt{}} \PYG{n}{num\PYGZus{}bins}\PYG{p}{)\PYGZob{}}
+
+		\PYG{n}{atomicAdd}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{p}{(}\PYG{n}{bins}\PYG{p}{[}\PYG{n}{thid}\PYG{p}{]),} \PYG{n}{bins\PYGZus{}s}\PYG{p}{[}\PYG{n}{thid}\PYG{p}{]);}
+		\PYG{n}{thid} \PYG{o}{+=} \PYG{n}{blockDim}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;}
+	\PYG{p}{\PYGZcb{}} 
+\PYG{p}{\PYGZcb{}}
+ 
+
+\PYG{n}{\PYGZus{}\PYGZus{}global\PYGZus{}\PYGZus{}} \PYG{k+kt}{void} \PYG{n+nf}{histogram\PYGZus{}kernel\PYGZus{}optimized}\PYG{p}{(}\PYG{k+kt}{unsigned} \PYG{k+kt}{int}\PYG{o}{*} \PYG{n}{input}\PYG{p}{,} \PYG{k+kt}{unsigned} \PYG{k+kt}{int}\PYG{o}{*} \PYG{n}{bins}\PYG{p}{,}
+    \PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{num\PYGZus{}elements}\PYG{p}{,} \PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{num\PYGZus{}bins}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+
+      	\PYG{c+c1}{// INSERT CODE HERE }
+	\PYG{k}{extern} \PYG{n}{\PYGZus{}\PYGZus{}shared\PYGZus{}\PYGZus{}} \PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{bins\PYGZus{}s}\PYG{p}{[];}
+	
+	\PYG{c+c1}{//Shared memory	}
+	\PYG{k+kt}{int} \PYG{n}{thid} \PYG{o}{=} \PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;}
+	\PYG{k}{while} \PYG{p}{(} \PYG{n}{thid} \PYG{o}{\PYGZlt{}} \PYG{n}{num\PYGZus{}bins}\PYG{p}{)\PYGZob{}}
+
+		\PYG{n}{bins\PYGZus{}s}\PYG{p}{[}\PYG{n}{thid}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mi}{0u}\PYG{p}{;}
+		\PYG{n}{thid} \PYG{o}{+=} \PYG{n}{blockDim}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;} 
+	\PYG{p}{\PYGZcb{}}
+	\PYG{n}{\PYGZus{}\PYGZus{}syncthreads}\PYG{p}{();}	
+ 
+	\PYG{c+c1}{//Histogram calculation}
+	\PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{element} \PYG{o}{=} \PYG{n}{blockIdx}\PYG{p}{.}\PYG{n}{x} \PYG{o}{*} \PYG{n}{blockDim}\PYG{p}{.}\PYG{n}{x} \PYG{o}{+} \PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;}
+	\PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{accumulator} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;}
+	\PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{prev\PYGZus{}index} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;}
+	 
+	\PYG{k}{while}\PYG{p}{(}\PYG{n}{element} \PYG{o}{\PYGZlt{}} \PYG{n}{num\PYGZus{}elements}\PYG{p}{)\PYGZob{}}
+		
+		\PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{curr\PYGZus{}index} \PYG{o}{=} \PYG{n}{input}\PYG{p}{[}\PYG{n}{element}\PYG{p}{];}
+		
+		\PYG{k}{if}\PYG{p}{(}\PYG{n}{curr\PYGZus{}index} \PYG{o}{!=} \PYG{n}{prev\PYGZus{}index}\PYG{p}{)\PYGZob{}}
+				
+			\PYG{n}{atomicAdd}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{p}{(}\PYG{n}{bins\PYGZus{}s}\PYG{p}{[}\PYG{n}{prev\PYGZus{}index}\PYG{p}{]),} \PYG{n}{accumulator}\PYG{p}{);}
+			\PYG{n}{accumulator} \PYG{o}{=} \PYG{l+m+mi}{1}\PYG{p}{;}
+			\PYG{n}{prev\PYGZus{}index} \PYG{o}{=} \PYG{n}{curr\PYGZus{}index}\PYG{p}{;}
+		
+		\PYG{p}{\PYGZcb{}}	
+			
+		\PYG{k}{else}\PYG{p}{\PYGZob{}}
+			\PYG{n}{accumulator}\PYG{o}{++}\PYG{p}{;}	
+		\PYG{p}{\PYGZcb{}}
+		\PYG{n}{element} \PYG{o}{+=} \PYG{n}{blockDim}\PYG{p}{.}\PYG{n}{x} \PYG{o}{*} \PYG{n}{gridDim}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;}
+	\PYG{p}{\PYGZcb{}}
+	\PYG{k}{if}\PYG{p}{(}\PYG{n}{accumulator} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{0}\PYG{p}{)\PYGZob{}}
+		\PYG{n}{atomicAdd}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{p}{(}\PYG{n}{bins\PYGZus{}s}\PYG{p}{[}\PYG{n}{prev\PYGZus{}index}\PYG{p}{]),} \PYG{n}{accumulator}\PYG{p}{);}
+	\PYG{p}{\PYGZcb{}}
+	\PYG{n}{\PYGZus{}\PYGZus{}syncthreads}\PYG{p}{();}
+
+	\PYG{c+c1}{//Global memory}
+	\PYG{n}{thid} \PYG{o}{=} \PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;}
+	\PYG{k}{while}\PYG{p}{(}\PYG{n}{thid} \PYG{o}{\PYGZlt{}} \PYG{n}{num\PYGZus{}bins}\PYG{p}{)\PYGZob{}}
+	
+		\PYG{n}{atomicAdd}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{p}{(}\PYG{n}{bins}\PYG{p}{[}\PYG{n}{thid}\PYG{p}{]),} \PYG{n}{bins\PYGZus{}s}\PYG{p}{[}\PYG{n}{thid}\PYG{p}{]);}
+		\PYG{n}{thid} \PYG{o}{+=} \PYG{n}{blockDim}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;}
+	\PYG{p}{\PYGZcb{}}
+
+\PYG{p}{\PYGZcb{}}
+
+\PYG{n}{\PYGZus{}\PYGZus{}global\PYGZus{}\PYGZus{}} \PYG{k+kt}{void} \PYG{n+nf}{convert\PYGZus{}kernel}\PYG{p}{(}\PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{o}{*}\PYG{n}{bins32}\PYG{p}{,} \PYG{k+kt}{uint8\PYGZus{}t} \PYG{o}{*}\PYG{n}{bins8}\PYG{p}{,}
+    \PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{num\PYGZus{}bins}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+
+      \PYG{c+c1}{// INSERT CODE HERE}
+	\PYG{k+kt}{int} \PYG{n}{thid} \PYG{o}{=} \PYG{n}{blockIdx}\PYG{p}{.}\PYG{n}{x} \PYG{o}{*} \PYG{n}{blockDim}\PYG{p}{.}\PYG{n}{x} \PYG{o}{+} \PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;}
+
+	\PYG{k}{while} \PYG{p}{(}\PYG{n}{thid} \PYG{o}{\PYGZlt{}} \PYG{n}{num\PYGZus{}bins}\PYG{p}{)\PYGZob{}}
+	
+		\PYG{c+c1}{//Use local  register value (avoids copying from global twice)		}
+		\PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{reg\PYGZus{}bin} \PYG{o}{=} \PYG{n}{bins32}\PYG{p}{[}\PYG{n}{thid}\PYG{p}{];}
+		
+		\PYG{k}{if}\PYG{p}{(}\PYG{n}{reg\PYGZus{}bin} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{255}\PYG{p}{)\PYGZob{}}
+			\PYG{n}{bins8}\PYG{p}{[}\PYG{n}{thid}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mi}{255u}\PYG{p}{;}
+		\PYG{p}{\PYGZcb{}}
+
+		\PYG{k}{else}\PYG{p}{\PYGZob{}}
+			\PYG{n}{bins8}\PYG{p}{[}\PYG{n}{thid}\PYG{p}{]} \PYG{o}{=} \PYG{p}{(}\PYG{k+kt}{uint8\PYGZus{}t}\PYG{p}{)} \PYG{n}{reg\PYGZus{}bin}\PYG{p}{;}
+		\PYG{p}{\PYGZcb{}}
+		\PYG{n}{thid} \PYG{o}{+=} \PYG{n}{blockDim}\PYG{p}{.}\PYG{n}{x} \PYG{o}{*} \PYG{n}{gridDim}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;}
+	\PYG{p}{\PYGZcb{}}
+
+\PYG{p}{\PYGZcb{}}
+
+\PYG{c+cm}{/******************************************************************************}
+\PYG{c+cm}{Setup and invoke your kernel(s) in this function. You may also allocate more}
+\PYG{c+cm}{GPU memory if you need to}
+\PYG{c+cm}{*******************************************************************************/}
+\PYG{k+kt}{void} \PYG{n+nf}{histogram}\PYG{p}{(}\PYG{k+kt}{unsigned} \PYG{k+kt}{int}\PYG{o}{*} \PYG{n}{input}\PYG{p}{,} \PYG{k+kt}{uint8\PYGZus{}t}\PYG{o}{*} \PYG{n}{bins}\PYG{p}{,} \PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{num\PYGZus{}elements}\PYG{p}{,}
+        \PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{num\PYGZus{}bins}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+
+    \PYG{c+c1}{// Create 32 bit bins}
+    \PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{o}{*}\PYG{n}{bins32}\PYG{p}{;}
+    \PYG{n}{cudaMalloc}\PYG{p}{((}\PYG{k+kt}{void}\PYG{o}{**}\PYG{p}{)}\PYG{o}{\PYGZam{}}\PYG{n}{bins32}\PYG{p}{,} \PYG{n}{num\PYGZus{}bins} \PYG{o}{*} \PYG{k}{sizeof}\PYG{p}{(}\PYG{k+kt}{unsigned} \PYG{k+kt}{int}\PYG{p}{));}
+    \PYG{n}{cudaMemset}\PYG{p}{(}\PYG{n}{bins32}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{num\PYGZus{}bins} \PYG{o}{*} \PYG{k}{sizeof}\PYG{p}{(}\PYG{k+kt}{unsigned} \PYG{k+kt}{int}\PYG{p}{));}
+
+    \PYG{c+c1}{// Launch histogram kernel using 32\PYGZhy{}bit bins}
+    \PYG{n}{dim3} \PYG{n}{dim\PYGZus{}grid}\PYG{p}{,} \PYG{n}{dim\PYGZus{}block}\PYG{p}{;}
+    \PYG{n}{dim\PYGZus{}block}\PYG{p}{.}\PYG{n}{x} \PYG{o}{=} \PYG{l+m+mi}{512}\PYG{p}{;} \PYG{n}{dim\PYGZus{}block}\PYG{p}{.}\PYG{n}{y} \PYG{o}{=} \PYG{n}{dim\PYGZus{}block}\PYG{p}{.}\PYG{n}{z} \PYG{o}{=} \PYG{l+m+mi}{1}\PYG{p}{;}
+    \PYG{n}{dim\PYGZus{}grid}\PYG{p}{.}\PYG{n}{x} \PYG{o}{=} \PYG{l+m+mi}{30}\PYG{p}{;} \PYG{n}{dim\PYGZus{}grid}\PYG{p}{.}\PYG{n}{y} \PYG{o}{=} \PYG{n}{dim\PYGZus{}grid}\PYG{p}{.}\PYG{n}{z} \PYG{o}{=} \PYG{l+m+mi}{1}\PYG{p}{;}
+
+    \PYG{c+c1}{//Comment out the kernel not used}
+    \PYG{c+c1}{//histogram\PYGZus{}kernel\PYGZlt{}\PYGZlt{}\PYGZlt{}dim\PYGZus{}grid, dim\PYGZus{}block, num\PYGZus{}bins*sizeof(unsigned int)\PYGZgt{}\PYGZgt{}\PYGZgt{}}
+       \PYG{c+c1}{// (input, bins32, num\PYGZus{}elements, num\PYGZus{}bins);}
+   \PYG{n}{histogram\PYGZus{}kernel\PYGZus{}optimized}\PYG{o}{\PYGZlt{}\PYGZlt{}\PYGZlt{}}\PYG{n}{dim\PYGZus{}grid}\PYG{p}{,} \PYG{n}{dim\PYGZus{}block}\PYG{p}{,} \PYG{n}{num\PYGZus{}bins}\PYG{o}{*}\PYG{k}{sizeof}\PYG{p}{(}\PYG{k+kt}{unsigned} \PYG{k+kt}{int}\PYG{p}{)}\PYG{o}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}
+	\PYG{p}{(}\PYG{n}{input}\PYG{p}{,} \PYG{n}{bins32}\PYG{p}{,} \PYG{n}{num\PYGZus{}elements}\PYG{p}{,} \PYG{n}{num\PYGZus{}bins}\PYG{p}{);}
+
+    \PYG{c+c1}{// Convert 32\PYGZhy{}bit bins into 8\PYGZhy{}bit bins}
+    \PYG{n}{dim\PYGZus{}block}\PYG{p}{.}\PYG{n}{x} \PYG{o}{=} \PYG{l+m+mi}{512}\PYG{p}{;}
+    \PYG{n}{dim\PYGZus{}grid}\PYG{p}{.}\PYG{n}{x} \PYG{o}{=} \PYG{p}{(}\PYG{n}{num\PYGZus{}bins} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{)}\PYG{o}{/}\PYG{n}{dim\PYGZus{}block}\PYG{p}{.}\PYG{n}{x} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{;}
+    \PYG{n}{convert\PYGZus{}kernel}\PYG{o}{\PYGZlt{}\PYGZlt{}\PYGZlt{}}\PYG{n}{dim\PYGZus{}grid}\PYG{p}{,} \PYG{n}{dim\PYGZus{}block}\PYG{o}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}\PYG{p}{(}\PYG{n}{bins32}\PYG{p}{,} \PYG{n}{bins}\PYG{p}{,} \PYG{n}{num\PYGZus{}bins}\PYG{p}{);}
+
+    \PYG{c+c1}{// Free allocated device memory}
+    \PYG{n}{cudaFree}\PYG{p}{(}\PYG{n}{bins32}\PYG{p}{);}
+
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

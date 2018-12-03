@@ -1,0 +1,77 @@
+
+\documentclass{article}
+
+\title{Lab 2}
+\author{George Onwubuya}
+\usepackage{fancyvrb}
+\usepackage{minted}
+
+\begin{document}
+\maketitle
+
+\section{Output Files}
+\subsection{Output File 1}
+\VerbatimInput{./sgemm.sh.o539095}
+
+\subsection{Output File 2}
+\VerbatimInput{./sgemm.sh.o539254}
+
+\section{Performance Analysis}
+\subsection{Square Matrices (n x n)}
+
+\begin{tabular}{ |p{2.5cm}||p{2cm}|p{2cm}|p{2cm}|p{2cm}|p{2cm}|  }
+ \hline
+ \multicolumn{6}{|c|}{Execution Time (seconds) for Each Process } \\
+ \hline
+ Elements(nxn) & Setting Up & DeviceVar & Kernel & HostToDevice & DeviceToHost\\
+ \hline
+ 1000 & 0.020886 & 0.176401 & 0.022178 & 0.004717 & 0.004555\\
+ \hline
+ 2000 & 0.81405 & 0.157044  & 0.163624 & 0.017920 & 0.015868\\
+ \hline
+ 4000 & 0.318687 & 0.155963 & 1.308468 & 0.071036 & 0.049722\\
+ \hline
+ 8000 & 1.281662  & 0.162413 & 10.493221 & 0.288608 & 0.186492 \\
+  \hline
+  \end{tabular}
+  \\
+  \\
+  \\
+  \subsection{Rectangle Matrices (A = m x k and B = n x k)} 
+  \setlength{\parindent}{1cm}
+  \begin{tabular}{ |p{2.5cm}||p{2cm}|p{2cm}|p{2cm}|p{2cm}|p{2cm}|  }
+ \hline
+ \multicolumn{6}{|c|}{Execution Time (seconds) for Each Process } \\
+ \hline
+ Elements (m,k,n) & Setting Up & DeviceVar & Kernel & HostToDevice & DeviceToHost\\
+ \hline
+ 1000, 500, 500 & 0.008318 & 0.179471 & 0.005649 & 0.001774 & 0.002503\\
+ \hline
+ 2000, 1000, 1000 & 0.030971 & 0.153657  & 0.043961 & 0.005067 & 0.005322\\
+ \hline
+ 4000, 2000, 2000 & 0.122200 & 0.157203 & 00.326948 & .027051 & 0.018884\\
+ \hline
+ 8000, 4000, 4000 & 0.486641  & 0.156578 & 2.614291 & 0.098028 & 0.102813 \\
+  \hline
+ \end{tabular}
+ 
+ 
+ \subsection{Comments}
+For the the square matrices each process time followed a similar pattern except for the process of allocating of 'device variables'  which shows no correlation or change as the number of elements increase. As the number of elements increase the time taken setting up the problem, allocating device variables, launching the kernel and copying data from the host to the device and vice versa also increase. There is a noticeable direct proportional relationship  between these processes and the number of elements. The same conclusion can be made for the rectangular matrices. It can also be observed that the time taken to allocate device variables are approximately the same regardless of the number of elements. 
+
+\section{Answers}
+\subsection{(i)}   
+The elements in matrix A are loaded m times and in B are loaded n times.
+\subsection{(ii)}
+If storing to the global memory is ignored then for each element the global memory is accessed twice. On the first load a floating point operation used used to multiply the elements from the corresponding row and column and on the second load a floating-point operation is used to perform addition. There are therefore 2 global memory accesses and 2 floating point operations and therefore the memory access to floating-point compute ratio is 1:1.
+\section{Main}
+\inputminted[breaklines, linenos]{c}{./main.cu}
+
+\section{Kernel}
+\inputminted[breaklines, linenos]{c}{./kernel.cu}
+
+\end{document}
+
+
+
+

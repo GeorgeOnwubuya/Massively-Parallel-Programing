@@ -1,0 +1,60 @@
+
+Setting up the problem...0.002145 s
+    Input size = 100000
+    Number of bins = 4096
+Allocating device variables...0.000262 s
+Copying data from host to device...0.000236 s
+Launching kernel...0.000498 s
+Copying data from device to host...0.000036 s
+Verifying results...TEST PASSED
+
+
+Setting up the problem...0.004105 s
+    Input size = 200000
+    Number of bins = 4096
+Allocating device variables...0.000303 s
+Copying data from host to device...0.000387 s
+Launching kernel...0.000504 s
+Copying data from device to host...0.000042 s
+Verifying results...TEST PASSED
+
+
+Setting up the problem...0.008779 s
+    Input size = 400000
+    Number of bins = 4096
+Allocating device variables...0.000259 s
+Copying data from host to device...0.000713 s
+Launching kernel...0.000528 s
+Copying data from device to host...0.000041 s
+Verifying results...TEST PASSED
+
+
+Setting up the problem...0.016875 s
+    Input size = 800000
+    Number of bins = 4096
+Allocating device variables...0.000261 s
+Copying data from host to device...0.001438 s
+Launching kernel...0.000560 s
+Copying data from device to host...0.000041 s
+Verifying results...TEST PASSED
+
+
+Setting up the problem...0.021037 s
+    Input size = 1000000
+    Number of bins = 4096
+Allocating device variables...0.000290 s
+Copying data from host to device...0.001656 s
+Launching kernel...0.000589 s
+Copying data from device to host...0.000040 s
+Verifying results...TEST PASSED
+
+
+Setting up the problem...0.033860 s
+    Input size = 1600000
+    Number of bins = 4096
+Allocating device variables...0.000284 s
+Copying data from host to device...0.002730 s
+Launching kernel...0.000629 s
+Copying data from device to host...0.000040 s
+Verifying results...TEST PASSED
+

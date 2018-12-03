@@ -1,0 +1,50 @@
+
+Setting up the problem...0.006791 s
+    Image: 600 x 1000
+    Mask: 5 x 5
+Allocating device variables...0.201096 s
+Copying data from host to device...0.001548 s
+Launching kernel...0.000209 s
+Copying data from device to host...0.001337 s
+Verifying results...TEST PASSED
+
+
+Setting up the problem...0.025171 s
+    Image: 1200 x 2000
+    Mask: 5 x 5
+Allocating device variables...0.181609 s
+Copying data from host to device...0.004396 s
+Launching kernel...0.000497 s
+Copying data from device to host...0.006667 s
+Verifying results...TEST PASSED
+
+
+Setting up the problem...0.097721 s
+    Image: 2400 x 4000
+    Mask: 5 x 5
+Allocating device variables...0.184917 s
+Copying data from host to device...0.020479 s
+Launching kernel...0.001661 s
+Copying data from device to host...0.032120 s
+Verifying results...TEST PASSED
+
+
+Setting up the problem...0.400631 s
+    Image: 4800 x 8000
+    Mask: 5 x 5
+Allocating device variables...0.183295 s
+Copying data from host to device...0.077317 s
+Launching kernel...0.006211 s
+Copying data from device to host...0.121019 s
+Verifying results...TEST PASSED
+
+
+Setting up the problem...1.571396 s
+    Image: 9600 x 16000
+    Mask: 5 x 5
+Allocating device variables...0.192857 s
+Copying data from host to device...0.259799 s
+Launching kernel...0.024441 s
+Copying data from device to host...0.475482 s
+Verifying results...TEST PASSED
+

@@ -1,0 +1,84 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}include} \PYG{c+cpf}{\PYGZlt{}stdio.h\PYGZgt{}}
+\PYG{c+cp}{\PYGZsh{}include} \PYG{c+cpf}{\PYGZlt{}stdlib.h\PYGZgt{}}
+\PYG{c+cp}{\PYGZsh{}include} \PYG{c+cpf}{\PYGZlt{}math.h\PYGZgt{}}
+\PYG{c+cp}{\PYGZsh{}include} \PYG{c+cpf}{\PYGZdq{}Partial\PYGZus{}Sum\PYGZus{}Kernel.cu\PYGZdq{}}
+
+\PYG{c+cp}{\PYGZsh{}define BLOCK\PYGZus{}SIZE  32;}
+\PYG{c+cp}{\PYGZsh{}define SAMPLE\PYGZus{}SIZE 32}
+
+\PYG{k+kt}{void} \PYG{n+nf}{FATAL} \PYG{p}{(}\PYG{k}{const} \PYG{k+kt}{char} \PYG{o}{*} \PYG{n}{s} \PYG{p}{)}
+\PYG{p}{\PYGZob{}}
+	\PYG{n}{puts}\PYG{p}{(}\PYG{n}{s}\PYG{p}{);}
+	\PYG{n}{exit}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{);}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kt}{int} \PYG{n+nf}{main}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{argc}\PYG{p}{,} \PYG{k+kt}{char}\PYG{o}{**}\PYG{n}{argv}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+    
+    \PYG{k+kt}{unsigned} \PYG{k+kt}{int} \PYG{n}{data\PYGZus{}size}\PYG{p}{;}
+    \PYG{n}{cudaError\PYGZus{}t} \PYG{n}{cuda\PYGZus{}ret}\PYG{p}{;}
+
+    
+    \PYG{k}{if}\PYG{p}{(}\PYG{n}{argc} \PYG{o}{==} \PYG{l+m+mi}{1}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+        \PYG{n}{data\PYGZus{}size}\PYG{o}{=} \PYG{l+m+mi}{64}\PYG{p}{;}
+    \PYG{p}{\PYGZcb{}} \PYG{k}{else} \PYG{k}{if}\PYG{p}{(}\PYG{n}{argc} \PYG{o}{==} \PYG{l+m+mi}{2}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+        \PYG{n}{data\PYGZus{}size}\PYG{o}{=} \PYG{n}{atoi}\PYG{p}{(}\PYG{n}{argv}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]);}
+    \PYG{p}{\PYGZcb{}} \PYG{k}{else} \PYG{p}{\PYGZob{}}
+        \PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{    Invalid input parameters!\PYGZdq{}}
+           \PYG{l+s}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{    Usage: ./vecadd               \PYGZsh{} Vector of size 10,000 is used\PYGZdq{}}
+           \PYG{l+s}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{    Usage: ./vecadd \PYGZlt{}m\PYGZgt{}           \PYGZsh{} Vector of size m is used\PYGZdq{}}
+           \PYG{l+s}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{);}
+        \PYG{n}{exit}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{);}
+    \PYG{p}{\PYGZcb{}}
+
+\PYG{c+c1}{//Device data}
+\PYG{k+kt}{int} \PYG{o}{*} \PYG{n}{array\PYGZus{}dev}\PYG{p}{;}
+\PYG{k+kt}{int} \PYG{n}{array\PYGZus{}size} \PYG{o}{=} \PYG{n}{data\PYGZus{}size}\PYG{p}{;}
+
+\PYG{c+c1}{//Host data}
+\PYG{k+kt}{int} \PYG{o}{*} \PYG{n}{array\PYGZus{}host} \PYG{o}{=} \PYG{p}{(}\PYG{k+kt}{int} \PYG{o}{*}\PYG{p}{)} \PYG{n}{malloc} \PYG{p}{(}\PYG{k}{sizeof}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{)}\PYG{o}{*}\PYG{n}{array\PYGZus{}size}\PYG{p}{);}
+\PYG{k}{for}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{i} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;} \PYG{n}{i} \PYG{o}{\PYGZlt{}} \PYG{n}{data\PYGZus{}size}\PYG{p}{;} \PYG{o}{++}\PYG{n}{i}\PYG{p}{)}
+	\PYG{n}{array\PYGZus{}host}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{n}{i} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{;}
+
+\PYG{k}{for} \PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{i} \PYG{o}{=} \PYG{n}{data\PYGZus{}size}\PYG{p}{;} \PYG{n}{i} \PYG{o}{\PYGZlt{}} \PYG{n}{array\PYGZus{}size}\PYG{p}{;} \PYG{o}{++}\PYG{n}{i}\PYG{p}{)}
+	\PYG{n}{array\PYGZus{}host}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;}
+
+\PYG{k+kt}{int} \PYG{n}{expected\PYGZus{}sum} \PYG{o}{=} \PYG{n}{data\PYGZus{}size} \PYG{o}{*} \PYG{p}{(}\PYG{n}{array\PYGZus{}host}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]} \PYG{o}{+} \PYG{n}{array\PYGZus{}host}\PYG{p}{[}\PYG{n}{data\PYGZus{}size} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{])} \PYG{o}{/} \PYG{l+m+mi}{2}\PYG{p}{;}
+
+\PYG{c+c1}{//Allocating \PYGZam{} copying device memory}
+\PYG{n}{cuda\PYGZus{}ret} \PYG{o}{=} \PYG{n}{cudaMalloc}\PYG{p}{((}\PYG{k+kt}{void}\PYG{o}{**}\PYG{p}{)}\PYG{o}{\PYGZam{}}\PYG{n}{array\PYGZus{}dev}\PYG{p}{,} \PYG{n}{array\PYGZus{}size}\PYG{o}{*}\PYG{k}{sizeof}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{));}
+	\PYG{k}{if}\PYG{p}{(}\PYG{n}{cuda\PYGZus{}ret} \PYG{o}{!=} \PYG{n}{cudaSuccess}\PYG{p}{)} \PYG{n}{FATAL}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}Unable to allocate device memory\PYGZdq{}}\PYG{p}{);}
+\PYG{n}{cuda\PYGZus{}ret} \PYG{o}{=} \PYG{n}{cudaMemcpy}\PYG{p}{(}\PYG{n}{array\PYGZus{}dev}\PYG{p}{,} \PYG{n}{array\PYGZus{}host}\PYG{p}{,} \PYG{n}{array\PYGZus{}size}\PYG{o}{*}\PYG{k}{sizeof}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{),} \PYG{n}{cudaMemcpyHostToDevice}\PYG{p}{);}
+	\PYG{k}{if}\PYG{p}{(}\PYG{n}{cuda\PYGZus{}ret} \PYG{o}{!=} \PYG{n}{cudaSuccess}\PYG{p}{)} \PYG{n}{FATAL}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}Unable to copy memory to device\PYGZdq{}}\PYG{p}{);}
+
+\PYG{n}{cudaDeviceSynchronize}\PYG{p}{();}
+
+\PYG{c+c1}{//Invoke Kernel\PYGZcb{}}
+\PYG{n}{vecSum\PYGZus{}final\PYGZus{}int1}\PYG{o}{\PYGZlt{}\PYGZlt{}\PYGZlt{}}\PYG{n}{dim3}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{),} \PYG{n}{dim3}\PYG{p}{(}\PYG{n}{SAMPLE\PYGZus{}SIZE}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)}\PYG{o}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}\PYG{p}{(}\PYG{n}{array\PYGZus{}dev}\PYG{p}{);}
+\PYG{n}{vecSum\PYGZus{}final\PYGZus{}int}\PYG{o}{\PYGZlt{}\PYGZlt{}\PYGZlt{}}\PYG{n}{dim3}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{),} \PYG{n}{dim3}\PYG{p}{(}\PYG{n}{SAMPLE\PYGZus{}SIZE}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)}\PYG{o}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}\PYG{p}{(}\PYG{n}{array\PYGZus{}dev}\PYG{p}{);}
+
+\PYG{c+c1}{//Copying to host memory}
+\PYG{k+kt}{int} \PYG{o}{*}\PYG{n}{result} \PYG{o}{=} \PYG{p}{(}\PYG{k+kt}{int} \PYG{o}{*}\PYG{p}{)} \PYG{n}{malloc}\PYG{p}{(}\PYG{k}{sizeof}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{)}\PYG{o}{*}\PYG{n}{array\PYGZus{}size}\PYG{p}{);}
+\PYG{n}{cuda\PYGZus{}ret} \PYG{o}{=} \PYG{n}{cudaMemcpy}\PYG{p}{(}\PYG{n}{result}\PYG{p}{,} \PYG{n}{array\PYGZus{}dev}\PYG{p}{,} \PYG{k}{sizeof}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{)}\PYG{o}{*}\PYG{n}{array\PYGZus{}size}\PYG{p}{,} \PYG{n}{cudaMemcpyDeviceToHost}\PYG{p}{);}
+\PYG{k}{if}\PYG{p}{(}\PYG{n}{cuda\PYGZus{}ret} \PYG{o}{!=} \PYG{n}{cudaSuccess}\PYG{p}{)} \PYG{n}{FATAL}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}Unable to copy memory to host\PYGZdq{}}\PYG{p}{);}
+
+\PYG{n}{cudaDeviceSynchronize}\PYG{p}{();}
+
+\PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}Array size = \PYGZpc{}d}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{array\PYGZus{}size}\PYG{p}{);}
+\PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}Expected result = \PYGZpc{}d}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{expected\PYGZus{}sum}\PYG{p}{);}
+\PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}Calculated result = \PYGZpc{}d}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{result}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]);}
+
+\PYG{k}{for} \PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{i} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;} \PYG{n}{i} \PYG{o}{\PYGZlt{}} \PYG{n}{data\PYGZus{}size}\PYG{p}{;} \PYG{o}{++}\PYG{n}{i}\PYG{p}{)\PYGZob{}}
+	\PYG{n}{printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}[\PYGZpc{}2d] : \PYGZpc{}5d, \PYGZpc{}5d}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{i}\PYG{p}{,} \PYG{n}{array\PYGZus{}host}\PYG{p}{[}\PYG{n}{i}\PYG{p}{],} \PYG{n}{result}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]);}
+\PYG{p}{\PYGZcb{}}
+
+
+\PYG{n}{fflush}\PYG{p}{(}\PYG{n}{stdout}\PYG{p}{);}
+
+\PYG{n}{free}\PYG{p}{(}\PYG{n}{array\PYGZus{}host}\PYG{p}{);}
+\PYG{n}{cudaFree}\PYG{p}{(}\PYG{n}{array\PYGZus{}dev}\PYG{p}{);}
+
+\PYG{k}{return} \PYG{l+m+mi}{0}\PYG{p}{;}
+
+\PYG{p}{\PYGZcb{};}
+\end{Verbatim}

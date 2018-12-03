@@ -1,0 +1,62 @@
+
+\documentclass{article}
+
+\title{Lab 1}
+\author{George Onwubuya}
+\usepackage{fancyvrb}
+
+\begin{document}
+\maketitle
+
+\section{Main File }
+\VerbatimInput{./main.cu}
+
+\section{Kernel File }
+\VerbatimInput{./kernel.cu}
+
+\section{Output File }
+\VerbatimInput{./vecadd.sh.o533684}
+
+\section{Output Analysis}
+
+
+\begin{tabular}{ |p{3cm}||p{3cm}|p{3cm}|p{3cm}|  }
+ \hline
+ \multicolumn{4}{|c|}{Time Taken for Each Sub Process} \\
+ \hline
+ Elements(n) & Setting Up(s) & Device Variables(s) & Kernel Launch(s) \\
+ \hline
+ 1000 & 0.000044 & 0.398394 & 0.006373\\
+ \hline
+ 10000 & 0.000246 & 0.375915  & 0.002321\\
+ \hline
+ 100000 & 0.0023003 & 0.377880 & 0.002300\\
+ \hline
+ 1000000 & 0.019750 & 0.372675 &0.000158\\
+  \hline
+  \end{tabular}
+  \\
+  \\
+  \\
+  \setlength{\parindent}{1cm}
+  \begin{tabular}{ |p{3cm}||p{3cm}|p{3cm}|  }
+ \hline
+ \multicolumn{3}{|c|}{Time Taken for Each Sub Process} \\
+ \hline
+ Elements(n) & Host to Device(s) & Device to Host(s)\\
+ \hline
+ 1000 & 0.012909 & 0.000021\\
+ \hline
+ 10000 & 0.006982 & 0.000048\\
+ \hline
+ 100000 & 0.000241 & 0.000308\\
+ \hline
+ 1000000 & 0.001425 &0.002088\\
+  \hline
+\end{tabular}
+
+\end{document}
+
+
+
+

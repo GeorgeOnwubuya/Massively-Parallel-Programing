@@ -1,0 +1,29 @@
+\documentclass{article}
+
+\title{Extra Credit Partial Sum}
+\author{George Onwubuya}
+
+\usepackage{fancyvrb}
+\usepackage{graphicx}
+\usepackage{minted}
+
+
+
+\begin{document}
+\maketitle
+
+\section{Main}
+\inputminted[breaklines,linenos]{c}{./Partial_Sum.cu}
+
+\section{Kernel}
+\inputminted[breaklines,linenos]{c}{./Partial_Sum_Kernel.cu}
+
+\section{Output}
+\setlength{\parskip}{1em}
+\VerbatimInput{./tardis.error}	
+
+\section{Output Analysis}
+The output shows that the "vecSum final int" fucntion has a faster execution time 
+than the "vecSum final int1" function. This is down to the fact that the latter function reduces coalescing. The "vecSum final int1" has an execution time of 8.8960us and "vecSum final int1" has an execution time of 4.7680us. 
+	
+\end{document}

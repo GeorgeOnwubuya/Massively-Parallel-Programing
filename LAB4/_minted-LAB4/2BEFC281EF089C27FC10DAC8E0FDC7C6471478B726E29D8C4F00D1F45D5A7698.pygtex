@@ -1,0 +1,95 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cm}{/********************************************************}
+\PYG{c+cm}{ *cr}
+\PYG{c+cm}{ *cr            (C) Copyright 2010 The Board of Trustees of the}
+\PYG{c+cm}{ *cr                        University of Illinois}
+\PYG{c+cm}{ *cr                         All Rights Reserved}
+\PYG{c+cm}{ *cr}
+\PYG{c+cm}{ ******************************************************************************/}
+
+\PYG{n}{\PYGZus{}\PYGZus{}constant\PYGZus{}\PYGZus{}} \PYG{k+kt}{float} \PYG{n}{M\PYGZus{}c}\PYG{p}{[}\PYG{n}{FILTER\PYGZus{}SIZE}\PYG{p}{][}\PYG{n}{FILTER\PYGZus{}SIZE}\PYG{p}{];}
+
+\PYG{c+cm}{/*\PYGZus{}\PYGZus{}device\PYGZus{}\PYGZus{} float getElement(Matrix *N, const int row, const int col)}
+\PYG{c+cm}{\PYGZob{}}
+\PYG{c+cm}{	return N\PYGZhy{}\PYGZgt{}elements[row*N\PYGZhy{}\PYGZgt{}width+col];}
+\PYG{c+cm}{\PYGZcb{}}
+\PYG{c+cm}{*/}
+\PYG{c+cm}{/*\PYGZus{}\PYGZus{}device\PYGZus{}\PYGZus{} void retElem(Matrix *P, const int row, const int col, float value)}
+\PYG{c+cm}{\PYGZob{}}
+\PYG{c+cm}{	P\PYGZhy{}\PYGZgt{}elements[row*P\PYGZhy{}\PYGZgt{}width+col] = value; }
+
+\PYG{c+cm}{	return;}
+\PYG{c+cm}{\PYGZcb{}*/}
+
+\PYG{n}{\PYGZus{}\PYGZus{}global\PYGZus{}\PYGZus{}} \PYG{k+kt}{void} \PYG{n+nf}{convolution}\PYG{p}{(}\PYG{n}{Matrix} \PYG{n}{N}\PYG{p}{,} \PYG{n}{Matrix} \PYG{n}{P}\PYG{p}{)}
+\PYG{p}{\PYGZob{}}
+	\PYG{c+cm}{/********************************************************************}
+\PYG{c+cm}{	Determine input and output indexes of each thread}
+\PYG{c+cm}{	Load a tile of the input image to shared memory}
+\PYG{c+cm}{	Apply the filter on the input image tile}
+\PYG{c+cm}{	Write the compute values to the output image at the correct indexes}
+\PYG{c+cm}{	********************************************************************/}
+
+        \PYG{c+c1}{//INSERT KERNEL CODE HERE}
+	\PYG{c+cm}{/*int col = blockIdx.x * blockDim.x + threadIdx.x;}
+\PYG{c+cm}{	int row = blockIdx.y * blockDim.y + threadIdx.y;}
+\PYG{c+cm}{	int col\PYGZus{}zeroIndex = col \PYGZhy{} FILTER\PYGZus{}SIZE/2;}
+\PYG{c+cm}{	int row\PYGZus{}zeroIndex = row \PYGZhy{} FILTER\PYGZus{}SIZE/2;}
+\PYG{c+cm}{	float sum = 0;}
+
+\PYG{c+cm}{	for(int j = 0; j \PYGZlt{} FILTER\PYGZus{}SIZE; ++j)\PYGZob{}}
+\PYG{c+cm}{		for(int k = 0; k \PYGZlt{} FILTER\PYGZus{}SIZE; ++k)\PYGZob{}}
+\PYG{c+cm}{			if((row\PYGZus{}zeroIndex + j \PYGZgt{}= 0) \PYGZam{}\PYGZam{} (row\PYGZus{}zeroIndex + j \PYGZlt{} N.height) \PYGZam{}\PYGZam{}   	   		}
+\PYG{c+cm}{		   	  (col\PYGZus{}zeroIndex + k \PYGZgt{}= 0) \PYGZam{}\PYGZam{}  (col\PYGZus{}zeroIndex+ k \PYGZlt{} N.width))\PYGZob{}		}
+\PYG{c+cm}{					//sum = M\PYGZus{}c[j][k] * getElement(\PYGZam{}N, row\PYGZus{}zeroIndex + j, col\PYGZus{}zeroIndex + k);}
+\PYG{c+cm}{			}
+\PYG{c+cm}{					sum += M\PYGZus{}c[j][k] * N.elements[(row\PYGZus{}zeroIndex + j)*N.width + col\PYGZus{}zeroIndex +k];				}
+\PYG{c+cm}{			\PYGZcb{}}
+\PYG{c+cm}{		\PYGZcb{}}
+\PYG{c+cm}{ 	\PYGZcb{}}
+\PYG{c+cm}{        if( row \PYGZlt{} P.height  \PYGZam{}\PYGZam{} col \PYGZlt{} P.width)}
+\PYG{c+cm}{		}
+\PYG{c+cm}{		//retElem(\PYGZam{}P, row, col, sum);}
+
+\PYG{c+cm}{		P.elements[row * P.width + col] = sum;*/}
+
+
+	\PYG{k+kt}{int} \PYG{n}{row} \PYG{o}{=} \PYG{n}{blockIdx}\PYG{p}{.}\PYG{n}{y} \PYG{o}{*} \PYG{n}{TILE\PYGZus{}SIZE} \PYG{o}{+} \PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{y}\PYG{p}{;}
+	\PYG{k+kt}{int} \PYG{n}{col} \PYG{o}{=} \PYG{n}{blockIdx}\PYG{p}{.}\PYG{n}{x} \PYG{o}{*} \PYG{n}{TILE\PYGZus{}SIZE} \PYG{o}{+} \PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x}\PYG{p}{;}
+	\PYG{k+kt}{int} \PYG{n}{rowZeroIndex} \PYG{o}{=} \PYG{n}{row} \PYG{o}{\PYGZhy{}} \PYG{n}{FILTER\PYGZus{}SIZE}\PYG{o}{/}\PYG{l+m+mi}{2}\PYG{p}{;}
+	\PYG{k+kt}{int} \PYG{n}{colZeroIndex} \PYG{o}{=} \PYG{n}{col} \PYG{o}{\PYGZhy{}} \PYG{n}{FILTER\PYGZus{}SIZE}\PYG{o}{/}\PYG{l+m+mi}{2}\PYG{p}{;}
+
+
+	\PYG{n}{\PYGZus{}\PYGZus{}shared\PYGZus{}\PYGZus{}} \PYG{k+kt}{float} \PYG{n}{N\PYGZus{}ds}\PYG{p}{[}\PYG{n}{TILE\PYGZus{}SIZE} \PYG{o}{+} \PYG{n}{FILTER\PYGZus{}SIZE} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{][}\PYG{n}{TILE\PYGZus{}SIZE} \PYG{o}{+} \PYG{n}{FILTER\PYGZus{}SIZE} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{];}
+
+	\PYG{k}{if}\PYG{p}{((}\PYG{n}{rowZeroIndex} \PYG{o}{\PYGZgt{}=} \PYG{l+m+mi}{0}\PYG{p}{)} \PYG{o}{\PYGZam{}\PYGZam{}} \PYG{p}{(}\PYG{n}{rowZeroIndex} \PYG{o}{\PYGZlt{}} \PYG{n}{N}\PYG{p}{.}\PYG{n}{height}\PYG{p}{)} \PYG{o}{\PYGZam{}\PYGZam{}} \PYG{p}{(}\PYG{n}{colZeroIndex} \PYG{o}{\PYGZgt{}=} \PYG{l+m+mi}{0}\PYG{p}{)} \PYG{o}{\PYGZam{}\PYGZam{}} \PYG{p}{(}\PYG{n}{colZeroIndex} \PYG{o}{\PYGZlt{}} \PYG{n}{N}\PYG{p}{.}\PYG{n}{width}\PYG{p}{))\PYGZob{}}
+		
+		\PYG{n}{N\PYGZus{}ds}\PYG{p}{[}\PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{y}\PYG{p}{][}\PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x}\PYG{p}{]} \PYG{o}{=} \PYG{n}{N}\PYG{p}{.}\PYG{n}{elements}\PYG{p}{[}\PYG{n}{rowZeroIndex} \PYG{o}{*} \PYG{n}{N}\PYG{p}{.}\PYG{n}{width} \PYG{o}{+} \PYG{n}{colZeroIndex}\PYG{p}{];}
+	\PYG{p}{\PYGZcb{}}
+
+	\PYG{k}{else}\PYG{p}{\PYGZob{}}
+		\PYG{n}{N\PYGZus{}ds}\PYG{p}{[}\PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{y}\PYG{p}{][}\PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mf}{0.0f}\PYG{p}{;}
+	\PYG{p}{\PYGZcb{}}
+
+	\PYG{n}{\PYGZus{}\PYGZus{}syncthreads}\PYG{p}{();}
+	
+	\PYG{k+kt}{float} \PYG{n}{sum} \PYG{o}{=} \PYG{l+m+mf}{0.0f}\PYG{p}{;}
+	
+	\PYG{k}{if}\PYG{p}{(}\PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{y} \PYG{o}{\PYGZlt{}} \PYG{n}{TILE\PYGZus{}SIZE} \PYG{o}{\PYGZam{}\PYGZam{}} \PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x} \PYG{o}{\PYGZlt{}} \PYG{n}{TILE\PYGZus{}SIZE}\PYG{p}{)\PYGZob{}}
+
+		\PYG{k}{for}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{dr} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;} \PYG{n}{dr} \PYG{o}{\PYGZlt{}} \PYG{n}{FILTER\PYGZus{}SIZE}\PYG{p}{;} \PYG{o}{++}\PYG{n}{dr}\PYG{p}{)\PYGZob{}}
+
+			\PYG{k}{for}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{dc} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;} \PYG{n}{dc} \PYG{o}{\PYGZlt{}} \PYG{n}{FILTER\PYGZus{}SIZE}\PYG{p}{;} \PYG{o}{++}\PYG{n}{dc}\PYG{p}{)\PYGZob{}}
+
+				\PYG{n}{sum} \PYG{o}{+=} \PYG{n}{M\PYGZus{}c}\PYG{p}{[}\PYG{n}{dr}\PYG{p}{][}\PYG{n}{dc}\PYG{p}{]} \PYG{o}{*} \PYG{n}{N\PYGZus{}ds}\PYG{p}{[}\PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{y} \PYG{o}{+} \PYG{n}{dr}\PYG{p}{][}\PYG{n}{threadIdx}\PYG{p}{.}\PYG{n}{x} \PYG{o}{+} \PYG{n}{dc}\PYG{p}{];}
+			\PYG{p}{\PYGZcb{}}
+		\PYG{p}{\PYGZcb{}}
+
+	\PYG{k}{if}\PYG{p}{(}\PYG{n}{row} \PYG{o}{\PYGZlt{}} \PYG{n}{P}\PYG{p}{.}\PYG{n}{height} \PYG{o}{\PYGZam{}\PYGZam{}} \PYG{n}{col} \PYG{o}{\PYGZlt{}} \PYG{n}{P}\PYG{p}{.}\PYG{n}{width}\PYG{p}{)\PYGZob{}}
+          
+        	\PYG{n}{P}\PYG{p}{.}\PYG{n}{elements}\PYG{p}{[}\PYG{n}{row} \PYG{o}{*} \PYG{n}{P}\PYG{p}{.}\PYG{n}{width} \PYG{o}{+} \PYG{n}{col}\PYG{p}{]} \PYG{o}{=} \PYG{n}{sum}\PYG{p}{;}	
+	\PYG{p}{\PYGZcb{}}		
+	
+	\PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

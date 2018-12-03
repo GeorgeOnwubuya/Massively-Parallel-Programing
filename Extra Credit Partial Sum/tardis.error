@@ -1,0 +1,20 @@
+==28325==NVPROF is profiling process 28325,command:/home/onwubuyag/Partial_Sum/partial_sum
+==28325==Profiling application:/home/onwubuyag/Partial_Sum/partial_sum
+==28325==Profiling result:
+Type  Time(%)  Time         Calls  Avg       Min       Max     Name
+GPU: 50.92%  8.8960us         1  8.8960us  8.8960us  8.8960us  vecSum_final_int1(int*)
+     27.29%  4.7680us         1  4.7680us  4.7680us  4.7680us  vecSum_final_int(int*)
+     13.19%  2.3040us         1  2.3040us  2.3040us  2.3040us  [CUDA memcpy DtoH]
+      8.60%  1.5030us         1  1.5030us  1.5030us  1.5030us  [CUDA memcpy HtoD]
+API: 99.46%  145.53ms         1  145.53ms  145.53ms  145.53ms  cudaMalloc
+      0.15%  219.99us         2  109.99us  15.702us  204.29us  cudaLaunch
+      0.12%  181.70us        94  1.9330us     452ns  47.434us  cuDeviceGetAttribute
+      0.11%  167.89us         1  167.89us  167.89us  167.89us  cuDeviceTotalMem
+      0.08%  112.70us         1  112.70us  112.70us  112.70us  cudaFree
+      0.04%  64.552us         2  32.276us  28.324us  36.228us  cudaMemcpy
+      0.01%  15.640us         1  15.640us  15.640us  15.640us  cuDeviceGetName
+      0.01%  15.548us         2  7.7740us  6.0780us  9.4700us  cudaDeviceSynchronize
+      0.00%  6.1690us         3  2.0560us     565ns  4.2580us  cuDeviceGetCount
+      0.00%  6.1590us         2  3.0790us     765ns  5.3940us  cudaSetupArgument
+      0.00%  3.3440us         2  1.6720us  1.0260us  2.3180us  cudaConfigureCall
+      0.00%  1.9730us         2     986ns     627ns  1.3460us  cuDeviceGet
